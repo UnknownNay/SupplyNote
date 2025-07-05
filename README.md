@@ -1,3 +1,3 @@
-#Aplikasi Supply Note
+# Aplikasi Supply Note
 
-Aplikasi ini digunakan untuk membantu UMKM dalam memanage supply dalam perusahaan 
+Aplikasi ini bertujuan untuk memenuhi kebutuhan UMKM untuk mengatur suplier di dalam perusahaan 
