@@ -6,6 +6,9 @@
 
 package supplynote;
 
+import javax.swing.*;
+
+import java.sql.*;
 /**
  *
  * @author aido
@@ -15,9 +18,21 @@ public class Frame_utama extends javax.swing.JFrame {
     /**
      * Creates new form f_utama
      */
+    
+    koneksi dbsetting;
+    String driver,database, user, pass;
+    
     public Frame_utama() {
         initComponents();
+        
+        dbsetting = new koneksi();
+        driver = dbsetting.SettingPanel("DBDriver");
+        database = dbsetting.SettingPanel("DBDatabase");
+        user = dbsetting.SettingPanel("DBUsername");
+        pass = dbsetting.SettingPanel("DBPassword");
+        
         tabel_barang.setModel(tableModel);
+        settableload();
 
     }
     
@@ -25,13 +40,47 @@ public class Frame_utama extends javax.swing.JFrame {
     private javax.swing.table.DefaultTableModel getDefaultTabelModel(){
         return new javax.swing.table.DefaultTableModel(
                 new Object[][] {},
-                new String[] {"Nama Barang", "Jenis Barang", "Nomor NIB", "Harga Barang"}
+                new String[] {"Kode Supplier", "Nama Supplier", "No Telepon", "Email", "Lokasi", "Negara"}
         ){
             boolean[] canEdit = new boolean[]{false, false};
             public boolean isCellEditable(int rowIndex, int columnIndex){
                 return canEdit[columnIndex];
             }
         };
+    }
+        
+    String data []=new String[6];
+    private void settableload(){
+        try{
+            Class.forName(driver);
+            Connection kon = DriverManager.getConnection(database, user, pass);
+            Statement stt = kon.createStatement();
+            String SQL = "SELECT * from supplier";
+            ResultSet res = stt.executeQuery(SQL);
+            
+            while(res.next()){
+                data[0] = res.getString(1);
+                System.out.println(data[0]);    
+                data[1] = res.getString(2);
+                data[2] = res.getString(3);
+                data[3] = res.getString(4);
+                data[4] = res.getString(5);
+                data[5] = res.getString(6);
+                tableModel.addRow(data);
+                
+            }
+            
+            res.close();
+            stt.close();
+            kon.close();
+            
+        }catch(Exception ex){
+            System.err.println(ex.getMessage());
+            JOptionPane.showMessageDialog(null,
+                    ex.getMessage(), "Error", 
+                    JOptionPane.INFORMATION_MESSAGE);
+            System.exit(0);
+        }
     }
 
     /**
@@ -119,7 +168,12 @@ public class Frame_utama extends javax.swing.JFrame {
         });
 
         jButton3.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        jButton3.setText("Edit Barang");
+        jButton3.setText("Lihat Detail");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -144,9 +198,7 @@ public class Frame_utama extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jScrollPane1)
-                            .addGroup(layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addContainerGap())))
         );
         layout.setVerticalGroup(
@@ -174,6 +226,10 @@ public class Frame_utama extends javax.swing.JFrame {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton3ActionPerformed
 
     /**
      * @param args the command line arguments
