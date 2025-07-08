@@ -33,6 +33,9 @@ public class Frame_utama extends javax.swing.JFrame {
         
         tabel_barang.setModel(tableModel);
         settableload();
+        
+        tabel_barang.getColumnModel().getColumn(0).setMinWidth(0);
+        tabel_barang.getColumnModel().getColumn(0).setMaxWidth(0);
 
     }
     
@@ -60,7 +63,6 @@ public class Frame_utama extends javax.swing.JFrame {
             
             while(res.next()){
                 data[0] = res.getString(1);
-                System.out.println(data[0]);    
                 data[1] = res.getString(2);
                 data[2] = res.getString(3);
                 data[3] = res.getString(4);
@@ -207,7 +209,7 @@ public class Frame_utama extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(27, 27, 27)
                 .addComponent(jLabel1)
-                .addGap(44, 44, 44)
+                .addGap(59, 59, 59)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -216,7 +218,7 @@ public class Frame_utama extends javax.swing.JFrame {
                 .addGap(35, 35, 35)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 342, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, 60, Short.MAX_VALUE)
+                .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, 45, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -225,6 +227,10 @@ public class Frame_utama extends javax.swing.JFrame {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
+        Frame_TambahSupplier tambahSup = new Frame_TambahSupplier();
+        tambahSup.setVisible(true);
+        
+        this.setVisible(false);
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
