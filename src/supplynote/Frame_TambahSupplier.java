@@ -213,7 +213,7 @@ public class Frame_TambahSupplier extends javax.swing.JFrame {
             String uuidAsString = uuid.toString();
             
             
-            String sql = "INSERT INTO supplier (kode_supplier, nama_supplier, no_telepon,"
+            String sql = "INSERT INTO t_supplier (kode_supplier, nama_supplier, no_telepon,"
                     + "email, lokasi, negara) VALUES (?, ?, ?, ?, ?, ?) ";
             
             PreparedStatement pst = kon.prepareStatement(sql);
