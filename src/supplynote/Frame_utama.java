@@ -95,6 +95,8 @@ public class Frame_utama extends javax.swing.JFrame {
                         + "t_barang.kode_supplier";
             ResultSet res = stt.executeQuery(SQL);
             
+            
+            tableModel.setRowCount(0);
             while(res.next()){
                 data[0] = res.getString(1);
                 data[1] = res.getString(2);
