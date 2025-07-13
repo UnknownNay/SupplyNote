@@ -22,6 +22,7 @@ public class Frame_TambahSupplier extends javax.swing.JFrame {
     koneksi dbsetting;
     String driver,database, user, pass;
     
+    
     public Frame_TambahSupplier() {
         initComponents();
         
@@ -34,11 +35,6 @@ public class Frame_TambahSupplier extends javax.swing.JFrame {
 
     }
     
-    
-    
-        
-    
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -205,13 +201,20 @@ public class Frame_TambahSupplier extends javax.swing.JFrame {
         String kota = txt_kota.getText();
         String negara = txt_negara.getText();
         
+        //Validasi
+        if (namaSupplier.isEmpty() || noTelepon.isEmpty() || email.isEmpty() 
+                || kota.isEmpty() || negara.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Semua field harus diisi!", 
+                    "Peringatan", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
         try{
             Class.forName(driver);
             Connection kon = DriverManager.getConnection(database,user,pass);
             //generate UUID
             UUID uuid = UUID.randomUUID();
             String uuidAsString = uuid.toString();
-            
             
             String sql = "INSERT INTO t_supplier (kode_supplier, nama_supplier, no_telepon,"
                     + "email, lokasi, negara) VALUES (?, ?, ?, ?, ?, ?) ";
@@ -228,9 +231,10 @@ public class Frame_TambahSupplier extends javax.swing.JFrame {
             if (rowInserted > 0) {
                 JOptionPane.showMessageDialog(null, "Data berhasil disimpan.");
                 
-                Frame_utama utama = new Frame_utama();
-                utama.setVisible(true);
+                FrameTambahBrg tambahBarang = new FrameTambahBrg();
+                tambahBarang.setKodeSupplier(uuidAsString);
                 
+                tambahBarang.setVisible(true);
                 this.setVisible(false);
             }
   
