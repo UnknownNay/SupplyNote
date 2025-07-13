@@ -4,11 +4,9 @@
  */
 package supplynote;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import javax.swing.JOptionPane;
+import java.sql.*;
+import javax.swing.*;
+import java.util.UUID;
 
 /**
  *
@@ -20,7 +18,7 @@ public class FrameTambahBrg extends javax.swing.JFrame {
      * Creates new form FrameTambahBrg
      */
     koneksi dbsetting;
-    String driver,database, user, pass;
+    String driver,database, user, pass, kodeSupplier;
     
    
     public FrameTambahBrg() {
@@ -31,9 +29,15 @@ public class FrameTambahBrg extends javax.swing.JFrame {
         database = dbsetting.SettingPanel("DBDatabase");
         user = dbsetting.SettingPanel("DBUsername");
         pass = dbsetting.SettingPanel("DBPassword");
-        
+
         tabel_barang.setModel(tableModel);
     }
+    
+    public void setKodeSupplier(String kodeSupplier){
+        this.kodeSupplier = kodeSupplier;
+        System.out.println("UUID Diterima : " + kodeSupplier);
+    }
+     
     private javax.swing.table.DefaultTableModel tableModel=getDefaultTabelModel();
     private javax.swing.table.DefaultTableModel getDefaultTabelModel(){
         return new javax.swing.table.DefaultTableModel(
@@ -46,35 +50,50 @@ public class FrameTambahBrg extends javax.swing.JFrame {
             }
         };
     }
+    
+    int row = 0;
+    public void tampil_field(){
+        row = tabel_barang.getSelectedRow();
+        txt_NBarang.setText(tableModel.getValueAt(row, 0).toString());
+        txt_JBarang.setText(tableModel.getValueAt(row, 1).toString());
+        txt_NoBIB.setText(tableModel.getValueAt(row, 2).toString());
+        txt_HargaB.setText(tableModel.getValueAt(row, 3).toString());
+        btn_ubah.setEnabled(true);
+    }
+    
+    
     String data []=new String[5];
     private void settableload(){
-        try{
-            Class.forName(driver);
-            Connection kon = DriverManager.getConnection(database, user, pass);
-            Statement stt = kon.createStatement();
-            String SQL = "SELECT nama_barang, jenis_barang, nomor_nib, harga FROM t_barang"
-                        + " INNER JOIN t_supplier ON t_supplier.kode_supplier = "
-                        + "t_barang.kode_supplier";
-            ResultSet res = stt.executeQuery(SQL);
-            
-            while(res.next()){
-                data[0] = res.getString(1);
-                data[1] = res.getString(2);
-                data[2] = res.getString(3);
-                data[3] = res.getString(4);
-                data[4] = res.getString(5);
-                tableModel.addRow(data);
-                
-            }
-            
-            res.close();
-            stt.close();
-            kon.close();
-            
-        }catch(Exception ex){
+        try {
+        Class.forName(driver);
+        Connection kon = DriverManager.getConnection(database, user, pass);
+
+        // Gunakan PreparedStatement dari awal
+        String SQL = "SELECT nama_barang, jenis_barang, nomor_nib, harga FROM"
+                + " t_barang WHERE kode_supplier = ?";
+        PreparedStatement pst = kon.prepareStatement(SQL);
+        pst.setString(1, kodeSupplier); // Set parameter supplier
+
+        ResultSet res = pst.executeQuery(); // Jalankan query setelah parameter diisi
+
+        tableModel.setRowCount(0); // Kosongkan tabel sebelum tambah baris baru
+
+        while (res.next()) {
+            data[0] = res.getString(1); // nama_barang
+            data[1] = res.getString(2); // jenis_barang
+            data[2] = res.getString(3); // nomor_nib
+            data[3] = res.getString(4); // harga
+            tableModel.addRow(data);
+        }
+
+        res.close();
+        pst.close();
+        kon.close();
+
+        } catch (Exception ex) {
             System.err.println(ex.getMessage());
             JOptionPane.showMessageDialog(null,
-                    ex.getMessage(), "Error", 
+                    ex.getMessage(), "Error",
                     JOptionPane.INFORMATION_MESSAGE);
             System.exit(0);
         }
@@ -89,7 +108,6 @@ public class FrameTambahBrg extends javax.swing.JFrame {
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
-        jPanel1 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
         jLabel17 = new javax.swing.JLabel();
         txt_NBarang = new javax.swing.JTextField();
@@ -99,30 +117,16 @@ public class FrameTambahBrg extends javax.swing.JFrame {
         jLabel20 = new javax.swing.JLabel();
         jLabel21 = new javax.swing.JLabel();
         txt_HargaB = new javax.swing.JTextField();
-        btn_simpan = new javax.swing.JButton();
         btn_tambah = new javax.swing.JButton();
         btn_ubah = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         tabel_barang = new javax.swing.JTable();
-        jToggleButton1 = new javax.swing.JToggleButton();
+        btn_selesai = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
         jLabel1.setText("Pencacatan Barang");
-
-        jPanel1.setBackground(new java.awt.Color(102, 102, 102));
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 81, Short.MAX_VALUE)
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-        );
 
         jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED), "Data Barang", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 1, 14))); // NOI18N
         jPanel5.setToolTipText("");
@@ -190,19 +194,23 @@ public class FrameTambahBrg extends javax.swing.JFrame {
                 .addGap(12, 12, 12)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel20)
-                    .addComponent(txt_NoBIB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(txt_NoBIB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        btn_simpan.setText("Simpan");
-        btn_simpan.addActionListener(new java.awt.event.ActionListener() {
+        btn_tambah.setText("Tambah");
+        btn_tambah.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn_simpanActionPerformed(evt);
+                btn_tambahActionPerformed(evt);
             }
         });
 
-        btn_tambah.setText("Tambah");
-
         btn_ubah.setText("Ubah");
+        btn_ubah.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_ubahActionPerformed(evt);
+            }
+        });
 
         tabel_barang.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -215,13 +223,17 @@ public class FrameTambahBrg extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        tabel_barang.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tabel_barangMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tabel_barang);
 
-        jToggleButton1.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        jToggleButton1.setText("<-");
-        jToggleButton1.addActionListener(new java.awt.event.ActionListener() {
+        btn_selesai.setText("Selesai");
+        btn_selesai.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jToggleButton1ActionPerformed(evt);
+                btn_selesaiActionPerformed(evt);
             }
         });
 
@@ -229,46 +241,42 @@ public class FrameTambahBrg extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btn_simpan)
-                        .addGap(30, 30, 30)
-                        .addComponent(btn_ubah)
-                        .addGap(27, 27, 27)
-                        .addComponent(btn_tambah)
-                        .addGap(33, 33, 33))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btn_selesai))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(28, 28, 28)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(btn_ubah)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btn_tambah))
+                            .addComponent(jPanel5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 706, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jToggleButton1))
-                            .addComponent(jScrollPane1))
-                        .addContainerGap())))
+                                .addGap(0, 4, Short.MAX_VALUE))
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING))))
+                .addContainerGap(26, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addGap(19, 19, 19)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1)
-                    .addComponent(jToggleButton1))
+                .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(12, 12, 12)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btn_simpan)
                     .addComponent(btn_tambah)
                     .addComponent(btn_ubah))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 195, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 228, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btn_selesai)
+                .addContainerGap(16, Short.MAX_VALUE))
         );
 
         jPanel5.getAccessibleContext().setAccessibleName("Data Barang\n");
@@ -280,13 +288,112 @@ public class FrameTambahBrg extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txt_NBarangActionPerformed
 
-    private void btn_simpanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_simpanActionPerformed
+    private void btn_selesaiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_selesaiActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_btn_simpanActionPerformed
+        Frame_utama utama = new Frame_utama();
+        utama.setVisible(true);
+        
+        this.setVisible(false);
+    }//GEN-LAST:event_btn_selesaiActionPerformed
 
-    private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
+    private void tabel_barangMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabel_barangMouseClicked
         // TODO add your handling code here:
-    }//GEN-LAST:event_jToggleButton1ActionPerformed
+        if(evt.getClickCount() == 1){
+            tampil_field();
+        }
+    }//GEN-LAST:event_tabel_barangMouseClicked
+
+    private void btn_tambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_tambahActionPerformed
+        // TODO add your handling code here:
+        String namaBarang = txt_NBarang.getText();
+        String jenisBarang = txt_JBarang.getText();
+        String noBIB = txt_NoBIB.getText();
+        String harga = txt_HargaB.getText();
+        
+        // Validasi input
+        if (namaBarang.isEmpty() || jenisBarang.isEmpty() || noBIB.isEmpty() 
+                || harga.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Semua field harus diisi!", 
+                    "Peringatan", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        
+        try{
+            Class.forName(driver);
+            Connection kon = DriverManager.getConnection(database,user,pass);
+            //generate UUID
+            UUID uuid = UUID.randomUUID();
+            String kodeBarang = uuid.toString();
+            
+            String sql = "INSERT INTO t_barang (kode_supplier, kode_barang, nama_barang,"
+                    + "jenis_barang, nomor_nib, harga) VALUES (?, ?, ?, ?, ?, ?) ";
+            
+            PreparedStatement pst = kon.prepareStatement(sql);
+            pst.setString(1, kodeSupplier);
+            pst.setString(2, kodeBarang);
+            pst.setString(3, namaBarang);
+            pst.setString(4, jenisBarang);
+            pst.setString(5, noBIB);
+            pst.setString(6, harga);
+            
+            int rowInserted = pst.executeUpdate();
+            if (rowInserted > 0) {
+//                JOptionPane.showMessageDialog(null, "Data berhasil disimpan.");                
+                settableload();
+            }
+  
+            pst.close();
+            kon.close();
+            
+        }catch(Exception ex){
+            JOptionPane.showMessageDialog(null, "Gagal menyimpan data: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            System.err.println(ex.getMessage());
+        }
+    }//GEN-LAST:event_btn_tambahActionPerformed
+
+    private void btn_ubahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_ubahActionPerformed
+        // TODO add your handling code here:
+        // Ambil data dari form
+        String namaBarang = txt_NBarang.getText();
+        String jenisBarang = txt_JBarang.getText();
+        String noBIB = txt_NoBIB.getText();
+        String harga = txt_HargaB.getText();
+
+        // Validasi input
+        if (namaBarang.isEmpty() || jenisBarang.isEmpty() || noBIB.isEmpty() || harga.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Semua field harus diisi!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Ambil kd_nilai dari baris yang dipilih
+        String kd_nilai = tableModel.getValueAt(row, 0).toString();
+
+        // Update ke database
+        try {
+            Class.forName(driver);
+            Connection kon = DriverManager.getConnection(database, user, pass);
+            String sql = "UPDATE t_barang SET nama_barang=?, jenis_barang=?, nomor_nib=?,"
+                    + " harga=? WHERE kode_barang=?";
+            PreparedStatement pst = kon.prepareStatement(sql);
+            pst.setString(1, namaBarang);
+            pst.setString(2, jenisBarang);
+            pst.setString(3, noBIB);
+            pst.setString(4, harga);
+
+            int rowUpdated = pst.executeUpdate();
+            if (rowUpdated > 0) {
+//                JOptionPane.showMessageDialog(null, "Data berhasil diubah.");
+                settableload();
+            }
+
+            pst.close();
+            kon.close();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Gagal mengubah data: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            System.err.println(ex.getMessage());
+        }
+    }//GEN-LAST:event_btn_ubahActionPerformed
 
     /**
      * @param args the command line arguments
@@ -325,7 +432,7 @@ public class FrameTambahBrg extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btn_simpan;
+    private javax.swing.JButton btn_selesai;
     private javax.swing.JButton btn_tambah;
     private javax.swing.JButton btn_ubah;
     private javax.swing.JLabel jLabel1;
@@ -333,10 +440,8 @@ public class FrameTambahBrg extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel21;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JTable tabel_barang;
     private javax.swing.JTextField txt_HargaB;
     private javax.swing.JTextField txt_JBarang;
