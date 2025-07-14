@@ -191,6 +191,9 @@ public class frame_editSupplier extends javax.swing.JFrame {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 tabel_supplierMouseClicked(evt);
             }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                tabel_supplierMouseEntered(evt);
+            }
         });
         jScrollPane1.setViewportView(tabel_supplier);
 
@@ -374,6 +377,10 @@ public class frame_editSupplier extends javax.swing.JFrame {
         utama.setVisible(true);
         this.setVisible(false);
     }//GEN-LAST:event_btn_kembaliActionPerformed
+
+    private void tabel_supplierMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabel_supplierMouseEntered
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tabel_supplierMouseEntered
 
     /**
      * @param args the command line arguments
