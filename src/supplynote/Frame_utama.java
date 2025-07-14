@@ -33,11 +33,12 @@ public class Frame_utama extends javax.swing.JFrame {
         
         tabel_barang.setModel(tableModel);
         comboxSupplier();
+        
 //        settableload();
         
 //        //Hide column 1
-//        tabel_barang.getColumnModel().getColumn(0).setMinWidth(0);
-//        tabel_barang.getColumnModel().getColumn(0).setMaxWidth(0);
+        tabel_barang.getColumnModel().getColumn(0).setMinWidth(0);
+        tabel_barang.getColumnModel().getColumn(0).setMaxWidth(0);
 //        //Hide column 2
 //        tabel_barang.getColumnModel().getColumn(1).setMinWidth(1);
 //        tabel_barang.getColumnModel().getColumn(1).setMaxWidth(1);
@@ -48,15 +49,17 @@ public class Frame_utama extends javax.swing.JFrame {
     private javax.swing.table.DefaultTableModel getDefaultTabelModel(){
         return new javax.swing.table.DefaultTableModel(
                 new Object[][] {},
-                new String[] {"Nama Supplier", "Nama Barang", "Jenis Barang", "Nomor NIB", "Harga"}
+                new String[] {"Kode Supplier","Nama Supplier", "Nama Barang", 
+                    "Jenis Barang", "Nomor NIB", "Harga"}
         ){
-            boolean[] canEdit = new boolean[]{false, false};
+            boolean[] canEdit = new boolean[]{false, false, false, false, false, false};
             public boolean isCellEditable(int rowIndex, int columnIndex){
                 return canEdit[columnIndex];
             }
         };
     }
     
+    //Mengambil data nama supplier untuk dimasukkan ke dalam combox
     private void comboxSupplier(){
         try{
             Class.forName(driver);
@@ -83,13 +86,13 @@ public class Frame_utama extends javax.swing.JFrame {
         }
     }
         
-    String data []=new String[5];
+    String data []=new String[6];
     private void settableload(){
         try{
             Class.forName(driver);
             Connection kon = DriverManager.getConnection(database, user, pass);
             Statement stt = kon.createStatement();
-            String SQL = "SELECT nama_supplier, nama_barang, jenis_barang, "
+            String SQL = "SELECT kode_supplier, nama_supplier, nama_barang, jenis_barang, "
                         + "nomor_nib, harga FROM t_supplier"
                         + " INNER JOIN t_barang ON t_supplier.kode_supplier = "
                         + "t_barang.kode_supplier";
@@ -103,6 +106,7 @@ public class Frame_utama extends javax.swing.JFrame {
                 data[2] = res.getString(3);
                 data[3] = res.getString(4);
                 data[4] = res.getString(5);
+                data[5] = res.getString(6);
                 tableModel.addRow(data);
                 
             }
@@ -144,7 +148,7 @@ public class Frame_utama extends javax.swing.JFrame {
             
             // Jika kodeSupplier ditemukan, ambil data barang
             if (!kodeSupplier.isEmpty()) {
-                String SQL = "SELECT nama_supplier, nama_barang, jenis_barang, "
+                String SQL = "SELECT t_supplier.kode_supplier, nama_supplier, nama_barang, jenis_barang, "
                         + "nomor_nib, harga FROM t_supplier"
                         + " INNER JOIN t_barang ON t_supplier.kode_supplier = "
                         + "t_barang.kode_supplier WHERE t_supplier.kode_supplier = ?";
@@ -156,20 +160,18 @@ public class Frame_utama extends javax.swing.JFrame {
                 ResultSet res = pst.executeQuery();
 
                 while (res.next()) {
-                    data[0] = res.getString(1); // nama_supplier
-                    data[1] = res.getString(2); // nama_barang
-                    data[2] = res.getString(3); // jenis_barang
-                    data[3] = res.getString(4); // nomor_nib
-                    data[4] = res.getString(5); // harga
+                    data[0] = res.getString(1); 
+                    data[1] = res.getString(2); 
+                    data[2] = res.getString(3); 
+                    data[3] = res.getString(4); 
+                    data[4] = res.getString(5); 
+                    data[5] = res.getString(6); 
                     tableModel.addRow(data);
                 }
             }
 
-            resKode.close();
             pst.close();
             kon.close();
-            
-            
             
         }catch(Exception ex){
             System.err.println(ex.getMessage());
@@ -199,7 +201,7 @@ public class Frame_utama extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         tabel_barang = new javax.swing.JTable();
         jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
+        btn_detail = new javax.swing.JButton();
         btn_tampilSemua = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -238,6 +240,8 @@ public class Frame_utama extends javax.swing.JFrame {
         jLabel2.setText("Nama Supplier");
 
         combox_supplier.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        combox_supplier.setMinimumSize(new java.awt.Dimension(72, 108));
+        combox_supplier.setName(""); // NOI18N
         combox_supplier.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 combox_supplierActionPerformed(evt);
@@ -279,11 +283,11 @@ public class Frame_utama extends javax.swing.JFrame {
             }
         });
 
-        jButton3.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        jButton3.setText("Lihat Detail");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
+        btn_detail.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        btn_detail.setText("Lihat Detail");
+        btn_detail.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
+                btn_detailActionPerformed(evt);
             }
         });
 
@@ -318,7 +322,7 @@ public class Frame_utama extends javax.swing.JFrame {
                         .addComponent(jScrollPane1)
                         .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btn_detail, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(btn_tampilSemua)
                         .addGap(21, 21, 21))))
@@ -339,7 +343,7 @@ public class Frame_utama extends javax.swing.JFrame {
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 342, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, 45, Short.MAX_VALUE)
+                    .addComponent(btn_detail, javax.swing.GroupLayout.DEFAULT_SIZE, 45, Short.MAX_VALUE)
                     .addComponent(btn_tampilSemua))
                 .addContainerGap())
         );
@@ -355,15 +359,28 @@ public class Frame_utama extends javax.swing.JFrame {
         this.setVisible(false);
     }//GEN-LAST:event_jButton2ActionPerformed
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton3ActionPerformed
+    private void btn_detailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_detailActionPerformed
+        // Mengambil indeks baris yang dipilih
+        int selectedRow = tabel_barang.getSelectedRow();
+
+        // Pastikan ada baris yang dipilih
+        if (selectedRow != -1) {
+            // Ambil kode supplier dari model tabel
+            String kodeSupplier = (String) tableModel.getValueAt(selectedRow, 0); // Kolom 0 adalah Kode Supplier
+
+            // Membuka frame Lihat Detail
+            Frame_LihatDetail lihatDetail = new Frame_LihatDetail();
+            lihatDetail.setKodeSupplier(kodeSupplier); // Set kode supplier
+            
+            lihatDetail.setVisible(true);
+            this.setVisible(false);
+        } else {
+            JOptionPane.showMessageDialog(this, "Silakan pilih baris untuk melihat detail.", "Peringatan", JOptionPane.WARNING_MESSAGE);
+        }
+    }//GEN-LAST:event_btn_detailActionPerformed
 
     private void tabel_barangMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabel_barangMouseClicked
         // TODO add your handling code here:
-        if(evt.getClickCount() == 1){
-//            tampil_field();
-        }
     }//GEN-LAST:event_tabel_barangMouseClicked
 
     private void combox_supplierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_combox_supplierActionPerformed
@@ -423,11 +440,11 @@ public class Frame_utama extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btn_detail;
     private javax.swing.JButton btn_tampilSemua;
     private javax.swing.JComboBox combox_supplier;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JLabel jLabel1;
