@@ -34,15 +34,10 @@ public class Frame_utama extends javax.swing.JFrame {
         tabel_barang.setModel(tableModel);
         comboxSupplier();
         
-//        settableload();
         
-//        //Hide column 1
+//        Hide column 1
         tabel_barang.getColumnModel().getColumn(0).setMinWidth(0);
         tabel_barang.getColumnModel().getColumn(0).setMaxWidth(0);
-//        //Hide column 2
-//        tabel_barang.getColumnModel().getColumn(1).setMinWidth(1);
-//        tabel_barang.getColumnModel().getColumn(1).setMaxWidth(1);
-
     }
     
     private javax.swing.table.DefaultTableModel tableModel=getDefaultTabelModel();
@@ -92,10 +87,9 @@ public class Frame_utama extends javax.swing.JFrame {
             Class.forName(driver);
             Connection kon = DriverManager.getConnection(database, user, pass);
             Statement stt = kon.createStatement();
-            String SQL = "SELECT kode_supplier, nama_supplier, nama_barang, jenis_barang, "
-                        + "nomor_nib, harga FROM t_supplier"
-                        + " INNER JOIN t_barang ON t_supplier.kode_supplier = "
-                        + "t_barang.kode_supplier";
+            String SQL = "SELECT t_supplier.kode_supplier, t_supplier.nama_supplier, t_barang.nama_barang, "
+                    + "t_barang.jenis_barang, t_barang.nomor_nib, t_barang.harga FROM t_supplier "
+                    + "INNER JOIN t_barang ON t_supplier.kode_supplier = t_barang.kode_supplier";
             ResultSet res = stt.executeQuery(SQL);
             
             
@@ -268,11 +262,6 @@ public class Frame_utama extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        tabel_barang.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tabel_barangMouseClicked(evt);
-            }
-        });
         jScrollPane1.setViewportView(tabel_barang);
 
         jButton2.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -291,6 +280,7 @@ public class Frame_utama extends javax.swing.JFrame {
             }
         });
 
+        btn_tampilSemua.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btn_tampilSemua.setText("Tampilkan Semua");
         btn_tampilSemua.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -304,48 +294,44 @@ public class Frame_utama extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(27, 27, 27)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel2)
-                                .addGap(18, 18, 18)
-                                .addComponent(combox_supplier, javax.swing.GroupLayout.PREFERRED_SIZE, 255, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jLabel1))
-                        .addGap(0, 484, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1)
-                        .addContainerGap())
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(btn_detail, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btn_tampilSemua)
-                        .addGap(21, 21, 21))))
+                        .addComponent(jLabel2)
+                        .addGap(18, 18, 18)
+                        .addComponent(combox_supplier, javax.swing.GroupLayout.PREFERRED_SIZE, 272, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel1)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(btn_detail, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btn_tampilSemua, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 1225, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(17, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
-                .addGap(27, 27, 27)
+                .addGap(36, 36, 36)
                 .addComponent(jLabel1)
-                .addGap(59, 59, 59)
+                .addGap(35, 35, 35)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(combox_supplier, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(35, 35, 35)
+                .addGap(27, 27, 27)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 342, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btn_detail, javax.swing.GroupLayout.DEFAULT_SIZE, 45, Short.MAX_VALUE)
-                    .addComponent(btn_tampilSemua))
-                .addContainerGap())
+                    .addComponent(btn_detail, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btn_tampilSemua, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(20, Short.MAX_VALUE))
         );
 
         pack();
@@ -360,28 +346,17 @@ public class Frame_utama extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void btn_detailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_detailActionPerformed
-        // Mengambil indeks baris yang dipilih
-        int selectedRow = tabel_barang.getSelectedRow();
 
-        // Pastikan ada baris yang dipilih
-        if (selectedRow != -1) {
-            // Ambil kode supplier dari model tabel
-            String kodeSupplier = (String) tableModel.getValueAt(selectedRow, 0); // Kolom 0 adalah Kode Supplier
+        // Ambil kode supplier dari model tabel
+        String kodeSupplier = (String) tableModel.getValueAt(0, 0); // Kolom 0 adalah Kode Supplier
 
-            // Membuka frame Lihat Detail
-            Frame_LihatDetail lihatDetail = new Frame_LihatDetail();
-            lihatDetail.setKodeSupplier(kodeSupplier); // Set kode supplier
-            
-            lihatDetail.setVisible(true);
-            this.setVisible(false);
-        } else {
-            JOptionPane.showMessageDialog(this, "Silakan pilih baris untuk melihat detail.", "Peringatan", JOptionPane.WARNING_MESSAGE);
-        }
+        // Membuka frame Lihat Detail
+        Frame_LihatDetail lihatDetail = new Frame_LihatDetail();
+        lihatDetail.setKodeSupplier(kodeSupplier); // Set kode supplier
+
+        lihatDetail.setVisible(true);
+        this.setVisible(false);
     }//GEN-LAST:event_btn_detailActionPerformed
-
-    private void tabel_barangMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabel_barangMouseClicked
-        // TODO add your handling code here:
-    }//GEN-LAST:event_tabel_barangMouseClicked
 
     private void combox_supplierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_combox_supplierActionPerformed
         // TODO add your handling code here:

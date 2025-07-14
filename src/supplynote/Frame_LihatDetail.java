@@ -48,11 +48,12 @@ public class Frame_LihatDetail extends javax.swing.JFrame {
                                 "Harga"
                                 }
         )
+                
         //Disable perubahan pada grid
         {
             boolean[] canEdit = new boolean[]
             {
-                false,false,false,false,false
+                false,false,false,false
             };
             
             public boolean isCellEditable(int rowIndex, int columnIndex)
@@ -96,8 +97,6 @@ public class Frame_LihatDetail extends javax.swing.JFrame {
                     JOptionPane.INFORMATION_MESSAGE);
             System.exit(0);
         }
-        
-        
     }
     
     //Menampilkan data ke field
@@ -105,10 +104,10 @@ public class Frame_LihatDetail extends javax.swing.JFrame {
     private void tampil_field(){
         row = tabel_barang.getSelectedRow();
         
-        txt_namaBarang.setText(String.valueOf(tableModel.getValueAt(row, 1)));
-        txt_jenisBarang.setText(String.valueOf(tableModel.getValueAt(row, 2)));
-        txt_NIB.setText(String.valueOf(tableModel.getValueAt(row, 3)));
-        txt_harga.setText(String.valueOf(tableModel.getValueAt(row, 4)));
+        txt_namaBarang.setText(String.valueOf(tableModel.getValueAt(row, 0)));
+        txt_jenisBarang.setText(String.valueOf(tableModel.getValueAt(row, 1)));
+        txt_NIB.setText(String.valueOf(tableModel.getValueAt(row, 2)));
+        txt_harga.setText(String.valueOf(tableModel.getValueAt(row, 3)));
     }
     
     public void setKodeSupplier(String kodeSupplier){
@@ -123,11 +122,13 @@ public class Frame_LihatDetail extends javax.swing.JFrame {
         try{
             Class.forName(driver);
             Connection kon = DriverManager.getConnection(database, user, pass);
-            Statement stt = kon.createStatement();
             String SQL = "SELECT nama_barang, jenis_barang, nomor_nib, "
-                    + "harga FROM t_barang";
-            ResultSet res = stt.executeQuery(SQL);
+                    + "harga FROM t_barang WHERE kode_supplier = ? ";
             
+            PreparedStatement pst = kon.prepareStatement(SQL);
+            pst.setString(1, kodeSupplier);
+            
+            ResultSet res = pst.executeQuery();
             
             tableModel.setRowCount(0);
             while(res.next()){
@@ -140,7 +141,7 @@ public class Frame_LihatDetail extends javax.swing.JFrame {
             }
             
             res.close();
-            stt.close();
+            pst.close();
             kon.close();
             
         }catch(Exception ex){
@@ -313,6 +314,40 @@ public class Frame_LihatDetail extends javax.swing.JFrame {
 
     private void btn_ubahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_ubahActionPerformed
         // TODO add your handling code here:
+        // Ambil data dari text field
+        String namaBarang = txt_namaBarang.getText();
+        String jenisBarang = txt_jenisBarang.getText();
+        String noNIB = txt_NIB.getText();
+        String Harga = txt_harga.getText();
+        
+        // Update ke database
+        try {
+            Class.forName(driver);
+            Connection kon = DriverManager.getConnection(database, user, pass);
+
+            String sql = "UPDATE t_barang SET nama_barang=?, jenis_barang=?, no_nib=?, harga=?"
+                    + " WHERE kode_supplier=?";
+            PreparedStatement pst = kon.prepareStatement(sql);
+
+            pst.setString(1, namaBarang);
+            pst.setString(2, jenisBarang); 
+            pst.setString(3, noNIB);
+            pst.setString(4, Harga);
+
+            int rowUpdated = pst.executeUpdate();
+            if (rowUpdated > 0) {
+                JOptionPane.showMessageDialog(null, "Data berhasil diubah.");
+                settableload();// refresh data berdasarkan NIM
+            }
+
+            pst.close();
+            kon.close();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, 
+                    "Gagal mengubah data: " + ex.getMessage(), 
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            System.err.println(ex.getMessage());
+        }              
     }//GEN-LAST:event_btn_ubahActionPerformed
 
     private void btn_kembaliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_kembaliActionPerformed
