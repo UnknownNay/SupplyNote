@@ -17,7 +17,7 @@ public class SupplyNote {
      */
     public static void main(String[] args) {
         // TODO code application logic here
-        Frame_utama utama = new Frame_utama();
+        f_supplier utama = new f_supplier();
         utama.setVisible(true);
     }
 }
