@@ -145,38 +145,38 @@ public class f_supplier extends javax.swing.JFrame {
 
         jPanel1.setBackground(new java.awt.Color(120, 120, 120));
 
+        btn_barang.setText("Barang");
         btn_barang.setBackground(new java.awt.Color(51, 51, 51));
+        btn_barang.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         btn_barang.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btn_barang.setForeground(new java.awt.Color(255, 255, 255));
-        btn_barang.setText("Barang");
         btn_barang.setToolTipText("");
-        btn_barang.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         btn_barang.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_barangActionPerformed(evt);
             }
         });
 
+        btn_transaksi.setText("Transaksi");
         btn_transaksi.setBackground(new java.awt.Color(51, 51, 51));
+        btn_transaksi.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         btn_transaksi.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btn_transaksi.setForeground(new java.awt.Color(255, 255, 255));
-        btn_transaksi.setText("Transaksi");
-        btn_transaksi.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         btn_transaksi.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_transaksiActionPerformed(evt);
             }
         });
 
-        btn_supplier.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btn_supplier.setText("Supplier");
         btn_supplier.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        btn_supplier.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
 
+        btn_detailTrans.setText("Detail Transaksi");
         btn_detailTrans.setBackground(new java.awt.Color(51, 51, 51));
+        btn_detailTrans.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         btn_detailTrans.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btn_detailTrans.setForeground(new java.awt.Color(255, 255, 255));
-        btn_detailTrans.setText("Detail Transaksi");
-        btn_detailTrans.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         btn_detailTrans.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_detailTransActionPerformed(evt);
@@ -217,21 +217,20 @@ public class f_supplier extends javax.swing.JFrame {
                     .addContainerGap(637, Short.MAX_VALUE)))
         );
 
-        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 48)); // NOI18N
         jLabel1.setText("Pencatatan Supplier");
+        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 48)); // NOI18N
 
-        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel2.setText("Negara");
+        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
 
-        btn_ubah.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         btn_ubah.setText("Ubah");
+        btn_ubah.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         btn_ubah.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_ubahActionPerformed(evt);
             }
         });
 
-        tabel_supplier.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         tabel_supplier.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
@@ -243,6 +242,7 @@ public class f_supplier extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        tabel_supplier.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         tabel_supplier.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 tabel_supplierMouseClicked(evt);
@@ -250,29 +250,29 @@ public class f_supplier extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(tabel_supplier);
 
-        btn_tambah.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         btn_tambah.setText("Tambah");
+        btn_tambah.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         btn_tambah.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_tambahActionPerformed(evt);
             }
         });
 
-        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel3.setText("Nama Supplier");
+        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
 
-        jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel4.setText("No. Telp");
+        jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
 
         txt_noTelp.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
-        jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel5.setText("Email");
+        jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
 
         txt_email.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
-        jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel6.setText("Lokasi");
+        jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
 
         txt_lokasi.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         txt_lokasi.addActionListener(new java.awt.event.ActionListener() {
@@ -281,8 +281,8 @@ public class f_supplier extends javax.swing.JFrame {
             }
         });
 
-        btn_hapus.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         btn_hapus.setText("Hapus");
+        btn_hapus.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         btn_hapus.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_hapusActionPerformed(evt);
@@ -365,13 +365,14 @@ public class f_supplier extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(txt_email, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel5))
-                        .addGap(0, 35, Short.MAX_VALUE)))
+                        .addGap(0, 66, Short.MAX_VALUE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 342, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(85, Short.MAX_VALUE))
+                .addContainerGap(54, Short.MAX_VALUE))
         );
 
-        pack();
+        setSize(new java.awt.Dimension(1478, 806));
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void btn_tambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_tambahActionPerformed

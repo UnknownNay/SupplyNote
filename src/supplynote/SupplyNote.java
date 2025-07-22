@@ -6,6 +6,9 @@
 
 package supplynote;
 
+import com.formdev.flatlaf.FlatLaf;
+import com.formdev.flatlaf.FlatLightLaf;
+
 /**
  *
  * @author aido
@@ -17,6 +20,8 @@ public class SupplyNote {
      */
     public static void main(String[] args) {
         // TODO code application logic here
+        FlatLightLaf.setup();
+        
         f_supplier utama = new f_supplier();
         utama.setVisible(true);
     }
