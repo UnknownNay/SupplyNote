@@ -391,7 +391,8 @@ public class f_transaksi extends javax.swing.JFrame {
                 .addContainerGap(60, Short.MAX_VALUE))
         );
 
-        pack();
+        setSize(new java.awt.Dimension(1478, 806));
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void btn_tambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_tambahActionPerformed
