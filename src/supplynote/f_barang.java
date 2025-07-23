@@ -247,14 +247,16 @@ public class f_barang extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel1.setBackground(new java.awt.Color(120, 120, 120));
+        jPanel1.setBackground(new java.awt.Color(16, 74, 107));
 
+        btn_barang.setBackground(new java.awt.Color(33, 148, 151));
         btn_barang.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btn_barang.setForeground(new java.awt.Color(255, 255, 255));
         btn_barang.setText("Barang");
         btn_barang.setToolTipText("");
         btn_barang.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
-        btn_keuangan.setBackground(new java.awt.Color(51, 51, 51));
+        btn_keuangan.setBackground(new java.awt.Color(33, 148, 151));
         btn_keuangan.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btn_keuangan.setForeground(new java.awt.Color(255, 255, 255));
         btn_keuangan.setText("Transaksi");
@@ -265,7 +267,7 @@ public class f_barang extends javax.swing.JFrame {
             }
         });
 
-        btn_supplier.setBackground(new java.awt.Color(51, 51, 51));
+        btn_supplier.setBackground(new java.awt.Color(33, 148, 151));
         btn_supplier.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btn_supplier.setForeground(new java.awt.Color(255, 255, 255));
         btn_supplier.setText("Supplier");
