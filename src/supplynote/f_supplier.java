@@ -375,7 +375,7 @@ public class f_supplier extends javax.swing.JFrame {
         String email = txt_email.getText();
         String lokasi = txt_lokasi.getText();
         String negara = txt_negara.getText();
-        
+
         // Validasi: Pastikan semua field tidak kosong
         if (namaSup.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Nama supplier belum diisi.", "Peringatan", JOptionPane.WARNING_MESSAGE);
@@ -410,18 +410,36 @@ public class f_supplier extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Negara belum diisi.", "Peringatan", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        
+
         try{
             Class.forName(driver);
             Connection kon = DriverManager.getConnection(database,user,pass);
-            
+
+            // --- START NEW VALIDATION CODE ---
+            // Check if supplier name already exists
+            String checkSql = "SELECT COUNT(*) FROM t_supplier WHERE nama_supplier = ?";
+            PreparedStatement checkPst = kon.prepareStatement(checkSql);
+            checkPst.setString(1, namaSup);
+            ResultSet rs = checkPst.executeQuery();
+            if (rs.next()) {
+                if (rs.getInt(1) > 0) {
+                    JOptionPane.showMessageDialog(null, "Nama supplier '" + namaSup + "' sudah ada. Harap gunakan nama lain.", "Peringatan Duplikasi", JOptionPane.WARNING_MESSAGE);
+                    rs.close();
+                    checkPst.close();
+                    kon.close();
+                    return;
+                }
+            }
+            rs.close();
+            checkPst.close();
+
             //generate UUID
             UUID uuid = UUID.randomUUID();
             String kodeSup = uuid.toString();
-            
+
             String sql = "INSERT INTO t_supplier (kode_supplier, nama_supplier, no_telepon,"
-                    + "email, lokasi, negara) VALUES (?, ?, ?, ?, ?, ?) ";
-            
+                        + "email, lokasi, negara) VALUES (?, ?, ?, ?, ?, ?) ";
+
             PreparedStatement pst = kon.prepareStatement(sql);
             pst.setString(1, kodeSup);
             pst.setString(2, namaSup);
@@ -429,17 +447,17 @@ public class f_supplier extends javax.swing.JFrame {
             pst.setString(4, email);
             pst.setString(5, lokasi);
             pst.setString(6, negara);
-            
+
             int rowInserted = pst.executeUpdate();
             if (rowInserted > 0) {
                 JOptionPane.showMessageDialog(null, "Data berhasil disimpan.");
                 settableload();
-                membersihkan_teks(); // reset form
+                membersihkan_teks(); 
             }
-  
+
             pst.close();
             kon.close();
-            
+
         }catch(Exception ex){
             JOptionPane.showMessageDialog(null, "Gagal menyimpan data: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             System.err.println(ex.getMessage());
@@ -448,18 +466,22 @@ public class f_supplier extends javax.swing.JFrame {
 
     private void btn_ubahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_ubahActionPerformed
         // TODO add your handling code here:
-        
+    
         // Ambil Kode Barang dari tabel
         int selectedRow = tabel_supplier.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(null, "Pilih supplier yang ingin diubah dari tabel.", "Peringatan", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         String kodeSup = tableModel.getValueAt(selectedRow, 0).toString();
-        
+
         // Ambil data dari text field
         String namaSup = txt_supplier.getText();
         String noTelp = txt_noTelp.getText();
         String email = txt_email.getText();
         String lokasi = txt_lokasi.getText();
         String negara = txt_negara.getText();
-        
+
         // Validasi: Pastikan semua field tidak kosong
         if (namaSup.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Nama supplier belum diisi.", "Peringatan", JOptionPane.WARNING_MESSAGE);
@@ -494,14 +516,34 @@ public class f_supplier extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Negara belum diisi.", "Peringatan", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        
+
         // Update ke database
         try {
             Class.forName(driver);
             Connection kon = DriverManager.getConnection(database, user, pass);
 
+            // --- START NEW VALIDATION CODE ---
+            // Check if the new supplier name already exists for a different supplier
+            String checkSql = "SELECT COUNT(*) FROM t_supplier WHERE nama_supplier = ? AND kode_supplier <> ?";
+            PreparedStatement checkPst = kon.prepareStatement(checkSql);
+            checkPst.setString(1, namaSup);
+            checkPst.setString(2, kodeSup); // Exclude the current supplier being updated
+            ResultSet rs = checkPst.executeQuery();
+            if (rs.next()) {
+                if (rs.getInt(1) > 0) {
+                    JOptionPane.showMessageDialog(null, "Nama supplier '" + namaSup + "' sudah digunakan oleh supplier lain. Harap gunakan nama lain.", "Peringatan Duplikasi", JOptionPane.WARNING_MESSAGE);
+                    rs.close();
+                    checkPst.close();
+                    kon.close();
+                    return; // Stop the update process
+                }
+            }
+            rs.close();
+            checkPst.close();
+            // --- END NEW VALIDATION CODE ---
+
             String sql = "UPDATE t_supplier SET nama_supplier=?, "
-                    + "no_telepon=?, email=?, lokasi=?, negara=? WHERE kode_supplier=?";
+                        + "no_telepon=?, email=?, lokasi=?, negara=? WHERE kode_supplier=?";
             PreparedStatement pst = kon.prepareStatement(sql);
 
             pst.setString(1, namaSup); 
@@ -522,10 +564,10 @@ public class f_supplier extends javax.swing.JFrame {
             kon.close();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, 
-                    "Gagal mengubah data: " + ex.getMessage(), 
-                    "Error", JOptionPane.ERROR_MESSAGE);
+                        "Gagal mengubah data: " + ex.getMessage(), 
+                        "Error", JOptionPane.ERROR_MESSAGE);
             System.err.println(ex.getMessage());
-        }           
+        }                    
     }//GEN-LAST:event_btn_ubahActionPerformed
 
     private void tabel_supplierMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabel_supplierMouseClicked
@@ -600,6 +642,7 @@ public class f_supplier extends javax.swing.JFrame {
                 try {
                     if (kon != null) {
                         kon.close(); // Ensure connection is closed
+                        membersihkan_teks();
                     }
                 } catch (SQLException closeEx) {
                     System.err.println("Error closing connection: " + closeEx.getMessage());

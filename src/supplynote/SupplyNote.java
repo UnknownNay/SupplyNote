@@ -13,6 +13,7 @@ import com.formdev.flatlaf.FlatLightLaf;
  *
  * @author aido
  */
+
 public class SupplyNote {
 
     /**

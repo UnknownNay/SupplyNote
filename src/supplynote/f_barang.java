@@ -35,14 +35,7 @@ public class f_barang extends javax.swing.JFrame {
         
         tabel_barang.setModel(tableModel);
         comboxSupplier();
-        
-        
-//        Hide column 1
-        tabel_barang.getColumnModel().getColumn(0).setMinWidth(0);
-        tabel_barang.getColumnModel().getColumn(0).setMaxWidth(0);
-        //Hide column 1
-        tabel_barang.getColumnModel().getColumn(1).setMinWidth(0);
-        tabel_barang.getColumnModel().getColumn(1).setMaxWidth(0);
+        hideColumn();
         
         String selectedSupplier = (String) combox_supplier.getSelectedItem();
         kodeSup = setkodeSup(selectedSupplier);
@@ -61,7 +54,12 @@ public class f_barang extends javax.swing.JFrame {
             }
         };
     }
-    
+    private void hideColumn(){
+        tabel_barang.getColumnModel().getColumn(0).setMinWidth(0);
+        tabel_barang.getColumnModel().getColumn(0).setMaxWidth(0);
+        tabel_barang.getColumnModel().getColumn(1).setMinWidth(0);
+        tabel_barang.getColumnModel().getColumn(1).setMaxWidth(0);
+    }
     //Mengambil data nama supplier untuk dimasukkan ke dalam combox
     private void comboxSupplier(){
         try{
@@ -249,12 +247,15 @@ public class f_barang extends javax.swing.JFrame {
 
         jPanel1.setBackground(new java.awt.Color(16, 74, 107));
 
-        btn_barang.setBackground(new java.awt.Color(33, 148, 151));
         btn_barang.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        btn_barang.setForeground(new java.awt.Color(255, 255, 255));
         btn_barang.setText("Barang");
         btn_barang.setToolTipText("");
         btn_barang.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        btn_barang.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_barangActionPerformed(evt);
+            }
+        });
 
         btn_keuangan.setBackground(new java.awt.Color(33, 148, 151));
         btn_keuangan.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -324,7 +325,7 @@ public class f_barang extends javax.swing.JFrame {
             }
         });
 
-        btn_ubah.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        btn_ubah.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btn_ubah.setText("Ubah");
         btn_ubah.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -351,7 +352,7 @@ public class f_barang extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(tabel_barang);
 
-        btn_tambah.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        btn_tambah.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btn_tambah.setText("Tambah");
         btn_tambah.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -374,6 +375,7 @@ public class f_barang extends javax.swing.JFrame {
 
         txt_harga.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
+        btn_tampil.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btn_tampil.setText("Tampilkan Semua");
         btn_tampil.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -381,7 +383,7 @@ public class f_barang extends javax.swing.JFrame {
             }
         });
 
-        btn_hapus.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        btn_hapus.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btn_hapus.setText("Hapus");
         btn_hapus.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -428,8 +430,8 @@ public class f_barang extends javax.swing.JFrame {
                                 .addComponent(btn_ubah, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(btn_tambah, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(btn_tampil, javax.swing.GroupLayout.Alignment.TRAILING))))
-                .addContainerGap(17, Short.MAX_VALUE))
+                            .addComponent(btn_tampil, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(28, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -454,7 +456,7 @@ public class f_barang extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(txt_jenisBarang, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel4))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 70, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 80, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(btn_hapus, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btn_tambah, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -462,45 +464,40 @@ public class f_barang extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 342, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btn_tampil, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(18, Short.MAX_VALUE))
+                .addComponent(btn_tampil, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(24, Short.MAX_VALUE))
         );
 
-        setSize(new java.awt.Dimension(1478, 806));
+        setSize(new java.awt.Dimension(1489, 826));
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void btn_tambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_tambahActionPerformed
-        // TODO add your handling code here:
         String selectedSupplier = (String) combox_supplier.getSelectedItem();
-        String kodeSup = setkodeSup(selectedSupplier);
-
-        // Ambil data dari text field
-        String namaBrg = txt_namaBarang.getText();
-        String jenisBrg = txt_jenisBarang.getText();
-        String harga = txt_harga.getText();
-        
-        // Validasi: Pastikan semua field tidak kosong
         if (selectedSupplier == null || selectedSupplier.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Supplier belum dipilih.", "Peringatan", JOptionPane.WARNING_MESSAGE);
             return;
         }
+        String kodeSup = setkodeSup(selectedSupplier);
 
+        String namaBrg = txt_namaBarang.getText();
+        String jenisBrg = txt_jenisBarang.getText();
+        String harga = txt_harga.getText();
+
+        // Validasi: Pastikan semua field tidak kosong
         if (namaBrg.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Nama barang belum diisi.", "Peringatan", JOptionPane.WARNING_MESSAGE);
             return;
         }
-
         if (jenisBrg.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Jenis barang belum diisi.", "Peringatan", JOptionPane.WARNING_MESSAGE);
             return;
         }
-
         if (harga.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Harga belum diisi.", "Peringatan", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        
+
         // Validasi: Harga harus berupa angka
         try {
             double hargaDouble = Double.parseDouble(harga);
@@ -512,38 +509,80 @@ public class f_barang extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Harga harus berupa angka.", "Peringatan", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        
-        try{
+
+        Connection kon = null;
+        PreparedStatement pst = null;
+        ResultSet rs = null; // Deklarasi ResultSet untuk pengecekan duplikasi
+
+        try {
             Class.forName(driver);
-            Connection kon = DriverManager.getConnection(database,user,pass);
-            
-            //generate UUID
+            kon = DriverManager.getConnection(database, user, pass);
+
+            // --- Validasi Duplikasi Nama Barang (Langsung di sini) ---
+            String checkSql = "SELECT COUNT(*) FROM t_barang WHERE nama_barang = ? AND kode_supplier = ?";
+            PreparedStatement checkPst = kon.prepareStatement(checkSql);
+            checkPst.setString(1, namaBrg);
+            checkPst.setString(2, kodeSup);
+            rs = checkPst.executeQuery();
+            if (rs.next()) {
+                if (rs.getInt(1) > 0) {
+                    JOptionPane.showMessageDialog(null, "Nama barang '" + namaBrg + "' sudah ada untuk supplier ini. Harap gunakan nama lain.", "Peringatan Duplikasi", JOptionPane.WARNING_MESSAGE);
+                    // Pastikan untuk menutup checkPst dan rs sebelum return
+                    rs.close();
+                    checkPst.close();
+                    kon.close(); // Tutup koneksi juga karena tidak ada operasi lain setelah ini
+                    return;
+                }
+            }
+            rs.close(); // Tutup ResultSet
+            checkPst.close(); // Tutup PreparedStatement untuk pengecekan
+            // --- Akhir Validasi Duplikasi Nama Barang ---
+
+            // Generate UUID
             UUID uuid = UUID.randomUUID();
             String uuidAsString = uuid.toString();
-            
+
             String sql = "INSERT INTO t_barang (kode_supplier, kode_barang, nama_barang,"
-                    + "jenis_barang, harga) VALUES (?, ?, ?, ?, ?) ";
-            
-            PreparedStatement pst = kon.prepareStatement(sql);
+                        + "jenis_barang, harga) VALUES (?, ?, ?, ?, ?) ";
+
+            pst = kon.prepareStatement(sql);
             pst.setString(1, kodeSup);
             pst.setString(2, uuidAsString);
             pst.setString(3, namaBrg);
             pst.setString(4, jenisBrg);
             pst.setString(5, harga);
-            
+
             int rowInserted = pst.executeUpdate();
             if (rowInserted > 0) {
                 JOptionPane.showMessageDialog(null, "Data berhasil disimpan.");
                 filterDataBySupplier(selectedSupplier);
-                membersihkan_teks(); // reset form
+                membersihkan_teks();
             }
-  
-            pst.close();
-            kon.close();
-            
-        }catch(Exception ex){
-            JOptionPane.showMessageDialog(null, "Gagal menyimpan data: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            System.err.println(ex.getMessage());
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Gagal menyimpan data ke database: " + ex.getMessage(), "Error Database", JOptionPane.ERROR_MESSAGE);
+            System.err.println("SQL Error: " + ex.getMessage());
+        } catch (ClassNotFoundException ex) {
+            JOptionPane.showMessageDialog(null, "Driver database tidak ditemukan: " + ex.getMessage(), "Error Driver", JOptionPane.ERROR_MESSAGE);
+            System.err.println("Class Not Found Error: " + ex.getMessage());
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Terjadi kesalahan: " + ex.getMessage(), "Error Umum", JOptionPane.ERROR_MESSAGE);
+            System.err.println("General Error: " + ex.getMessage());
+        } finally {
+            // Pastikan ResultSet, PreparedStatement, dan Connection ditutup
+            try {
+                if (rs != null) { // Pastikan rs ditutup jika tidak ditutup di dalam try
+                    rs.close();
+                }
+                if (pst != null) {
+                    pst.close();
+                }
+                if (kon != null) {
+                    kon.close();
+                }
+            } catch (SQLException closeEx) {
+                System.err.println("Error closing database resources: " + closeEx.getMessage());
+            }
         }
     }//GEN-LAST:event_btn_tambahActionPerformed
 
@@ -556,40 +595,39 @@ public class f_barang extends javax.swing.JFrame {
     }//GEN-LAST:event_combox_supplierActionPerformed
 
     private void btn_ubahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_ubahActionPerformed
-        // TODO add your handling code here:
-        
-        // Ambil Kode Barang dari tabel
         int selectedRow = tabel_barang.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(null, "Pilih barang yang ingin diubah dari tabel.", "Peringatan", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
         String selectedSupplier = (String) combox_supplier.getSelectedItem();
-        String kodeBrg = tableModel.getValueAt(selectedRow, 1).toString();
-        
-        // Ambil data dari text field
-        String namaBrg = txt_namaBarang.getText();
-        String jenisBrg = txt_jenisBarang.getText();
-        String harga = txt_harga.getText();
-        
-        // Validasi: Pastikan semua field tidak kosong
         if (selectedSupplier == null || selectedSupplier.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Supplier belum dipilih.", "Peringatan", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
+        String kodeSup = tableModel.getValueAt(selectedRow, 0).toString();
+        String kodeBrg = tableModel.getValueAt(selectedRow, 1).toString();
+
+        String namaBrg = txt_namaBarang.getText();
+        String jenisBrg = txt_jenisBarang.getText();
+        String harga = txt_harga.getText();
+
+        // Validasi input
         if (namaBrg.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Nama barang belum diisi.", "Peringatan", JOptionPane.WARNING_MESSAGE);
             return;
         }
-
         if (jenisBrg.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Jenis barang belum diisi.", "Peringatan", JOptionPane.WARNING_MESSAGE);
             return;
         }
-
         if (harga.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Harga belum diisi.", "Peringatan", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        
-        // Validasi: Harga harus berupa angka
+
         try {
             double hargaDouble = Double.parseDouble(harga);
             if (hargaDouble <= 0) {
@@ -601,17 +639,41 @@ public class f_barang extends javax.swing.JFrame {
             return;
         }
 
-        // Update ke database
+        Connection kon = null;
+        PreparedStatement pst = null;
+        ResultSet rs = null; // Deklarasi ResultSet untuk pengecekan duplikasi
+
         try {
             Class.forName(driver);
-            Connection kon = DriverManager.getConnection(database, user, pass);
+            kon = DriverManager.getConnection(database, user, pass);
+
+            // --- Validasi Duplikasi Nama Barang (Langsung di sini) ---
+            String checkSql = "SELECT COUNT(*) FROM t_barang WHERE nama_barang = ? AND kode_supplier = ? AND kode_barang <> ?";
+            PreparedStatement checkPst = kon.prepareStatement(checkSql);
+            checkPst.setString(1, namaBrg);
+            checkPst.setString(2, kodeSup);
+            checkPst.setString(3, kodeBrg); // Exclude barang yang sedang diubah
+            rs = checkPst.executeQuery();
+            if (rs.next()) {
+                if (rs.getInt(1) > 0) {
+                    JOptionPane.showMessageDialog(null, "Nama barang '" + namaBrg + "' sudah ada untuk supplier ini. Harap gunakan nama lain.", "Peringatan Duplikasi", JOptionPane.WARNING_MESSAGE);
+                    // Pastikan untuk menutup checkPst dan rs sebelum return
+                    rs.close();
+                    checkPst.close();
+                    kon.close(); // Tutup koneksi juga
+                    return;
+                }
+            }
+            rs.close(); // Tutup ResultSet
+            checkPst.close(); // Tutup PreparedStatement untuk pengecekan
+            // --- Akhir Validasi Duplikasi Nama Barang ---
 
             String sql = "UPDATE t_barang SET nama_barang=?, jenis_barang=?, "
-                    + "harga=? WHERE kode_barang=?";
-            PreparedStatement pst = kon.prepareStatement(sql);
+                        + "harga=? WHERE kode_barang=?";
+            pst = kon.prepareStatement(sql);
 
-            pst.setString(1, namaBrg);
-            pst.setString(2, jenisBrg); 
+            pst.setString(1, namaBrg); 
+            pst.setString(2, jenisBrg);
             pst.setString(3, harga);
             pst.setString(4, kodeBrg);
 
@@ -619,17 +681,35 @@ public class f_barang extends javax.swing.JFrame {
             if (rowUpdated > 0) {
                 JOptionPane.showMessageDialog(null, "Data berhasil diubah.");
                 filterDataBySupplier(selectedSupplier);
-                membersihkan_teks(); // reset form
+                membersihkan_teks();
             }
 
-            pst.close();
-            kon.close();
-        } catch (Exception ex) {
+        } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, 
-                    "Gagal mengubah data: " + ex.getMessage(), 
-                    "Error", JOptionPane.ERROR_MESSAGE);
-            System.err.println(ex.getMessage());
-        }           
+                        "Gagal mengubah data ke database: " + ex.getMessage(), 
+                        "Error Database", JOptionPane.ERROR_MESSAGE);
+            System.err.println("SQL Error: " + ex.getMessage());
+        } catch (ClassNotFoundException ex) {
+            JOptionPane.showMessageDialog(null, "Driver database tidak ditemukan: " + ex.getMessage(), "Error Driver", JOptionPane.ERROR_MESSAGE);
+            System.err.println("Class Not Found Error: " + ex.getMessage());
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Terjadi kesalahan: " + ex.getMessage(), "Error Umum", JOptionPane.ERROR_MESSAGE);
+            System.err.println("General Error: " + ex.getMessage());
+        } finally {
+            try {
+                if (rs != null) { // Pastikan rs ditutup jika tidak ditutup di dalam try
+                    rs.close();
+                }
+                if (pst != null) {
+                    pst.close();
+                }
+                if (kon != null) {
+                    kon.close();
+                }
+            } catch (SQLException closeEx) {
+                System.err.println("Error closing database resources: " + closeEx.getMessage());
+            }
+        }                       
     }//GEN-LAST:event_btn_ubahActionPerformed
 
     private void tabel_barangMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabel_barangMouseClicked
@@ -653,53 +733,92 @@ public class f_barang extends javax.swing.JFrame {
 
         String kodeBrg = tableModel.getValueAt(selectedRow, 1).toString();
         String namaBrg = tableModel.getValueAt(selectedRow, 3).toString(); // Get item name for confirmation
+        String selectedSupplier = (String) combox_supplier.getSelectedItem(); // Ambil supplier yang sedang aktif
 
         int confirm = JOptionPane.showConfirmDialog(null, 
                 "Apakah Anda yakin ingin menghapus barang '" + namaBrg + "'? Ini juga akan menghapus detail transaksi terkait.", 
                 "Konfirmasi Hapus", JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
+            Connection kon = null; // Deklarasikan Connection di luar try
+            PreparedStatement pstDetail = null; // Deklarasikan PreparedStatement di luar try
+            PreparedStatement pstBarang = null; // Deklarasikan PreparedStatement di luar try
+
             try {
                 Class.forName(driver);
-                Connection kon = DriverManager.getConnection(database, user, pass);
-                kon.setAutoCommit(false); // Start transaction
+                kon = DriverManager.getConnection(database, user, pass);
+                kon.setAutoCommit(false); // Mulai transaksi
 
-                // 1. Delete dependent records from t_detail_transaksi
+                // 1. Hapus record terkait dari t_detail_transaksi
                 String sqlDeleteDetail = "DELETE FROM t_detail_transaksi WHERE kode_barang = ?";
-                PreparedStatement pstDetail = kon.prepareStatement(sqlDeleteDetail);
+                pstDetail = kon.prepareStatement(sqlDeleteDetail);
                 pstDetail.setString(1, kodeBrg);
                 pstDetail.executeUpdate();
-                pstDetail.close();
+                pstDetail.close(); // Tutup setelah digunakan
 
-                // 2. Delete the item from t_barang
+                // 2. Hapus barang dari t_barang
                 String sqlDeleteBarang = "DELETE FROM t_barang WHERE kode_barang = ?";
-                PreparedStatement pstBarang = kon.prepareStatement(sqlDeleteBarang);
+                pstBarang = kon.prepareStatement(sqlDeleteBarang);
                 pstBarang.setString(1, kodeBrg);
 
                 int rowsAffected = pstBarang.executeUpdate();
                 if (rowsAffected > 0) {
-                    kon.commit(); // Commit transaction if both deletions are successful
+                    kon.commit(); // Commit transaksi jika kedua penghapusan berhasil
                     JOptionPane.showMessageDialog(null, "Data barang dan detail transaksi terkait berhasil dihapus.");
-                    String selectedSupplier = (String) combox_supplier.getSelectedItem();
+                    // Refresh tabel berdasarkan supplier yang dipilih atau semua data
                     if (selectedSupplier != null && !selectedSupplier.isEmpty()) {
                         filterDataBySupplier(selectedSupplier);
                     } else {
-                        settableload(); // Reload all data if no supplier is selected
+                        settableload(); // Muat ulang semua data jika tidak ada supplier yang dipilih
                     }
-                    membersihkan_teks(); // reset form
+                    membersihkan_teks();
                 } else {
-                    kon.rollback(); // Rollback if item deletion fails
+                    kon.rollback(); // Rollback jika penghapusan barang gagal
                     JOptionPane.showMessageDialog(null, "Gagal menghapus data barang.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
 
-                pstBarang.close();
-                kon.close();
-
-            } catch (Exception ex) {
+            } catch (SQLException ex) {
+                try {
+                    if (kon != null) {
+                        kon.rollback(); // Rollback jika terjadi SQLException
+                    }
+                } catch (SQLException rollbackEx) {
+                    System.err.println("Error during rollback: " + rollbackEx.getMessage());
+                }
                 JOptionPane.showMessageDialog(null, 
-                        "Gagal menghapus data: " + ex.getMessage(), 
-                        "Error", JOptionPane.ERROR_MESSAGE);
-                System.err.println(ex.getMessage());
+                            "Gagal menghapus data: " + ex.getMessage(), 
+                            "Error Database", JOptionPane.ERROR_MESSAGE);
+                System.err.println("SQL Error: " + ex.getMessage());
+            } catch (ClassNotFoundException ex) {
+                JOptionPane.showMessageDialog(null, "Driver database tidak ditemukan: " + ex.getMessage(), "Error Driver", JOptionPane.ERROR_MESSAGE);
+                System.err.println("Class Not Found Error: " + ex.getMessage());
+            } catch (Exception ex) {
+                try {
+                    if (kon != null) {
+                        kon.rollback(); // Rollback untuk exception umum
+                    }
+                } catch (SQLException rollbackEx) {
+                    System.err.println("Error during rollback for general exception: " + rollbackEx.getMessage());
+                }
+                JOptionPane.showMessageDialog(null, 
+                            "Terjadi kesalahan: " + ex.getMessage(), 
+                            "Error Umum", JOptionPane.ERROR_MESSAGE);
+                System.err.println("General Error: " + ex.getMessage());
+            } finally {
+                // Pastikan semua PreparedStatement dan Connection ditutup
+                try {
+                    if (pstDetail != null) {
+                        pstDetail.close();
+                    }
+                    if (pstBarang != null) {
+                        pstBarang.close();
+                    }
+                    if (kon != null) {
+                        kon.close();
+                    }
+                } catch (SQLException closeEx) {
+                    System.err.println("Error closing database resources in finally block: " + closeEx.getMessage());
+                }
             }
         }
     }//GEN-LAST:event_btn_hapusActionPerformed
@@ -719,6 +838,10 @@ public class f_barang extends javax.swing.JFrame {
         transaksi.setVisible(true);
         this.setVisible(false);
     }//GEN-LAST:event_btn_keuanganActionPerformed
+
+    private void btn_barangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_barangActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btn_barangActionPerformed
 
     /**
      * @param args the command line arguments
