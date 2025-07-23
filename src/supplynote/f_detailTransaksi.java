@@ -127,14 +127,17 @@ public class f_detailTransaksi extends javax.swing.JFrame {
         };
     }
     
-    private String formatCurrency(int amount) {
-        NumberFormat formatter = NumberFormat.getInstance(Locale.GERMANY); // Use Locale.GERMANY for dot as thousand separator
+    // Di f_detailTransaksi.java
+    private String formatRupiah(int amount) {
+        NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("in", "ID"));
+        formatter.setMaximumFractionDigits(0);
+        formatter.setMinimumFractionDigits(0);
         return formatter.format(amount);
     }
 
-    private int parseCurrency(String formattedAmount) throws java.text.ParseException {
-        NumberFormat formatter = NumberFormat.getInstance(Locale.GERMANY);
-        Number number = formatter.parse(formattedAmount);
+    private int parseRupiah(String formattedAmount) throws java.text.ParseException {
+        NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("in", "ID"));
+        Number number = formatter.parse(formattedAmount.trim()); // Trim whitespace
         return number.intValue();
     }
     
@@ -223,18 +226,101 @@ public class f_detailTransaksi extends javax.swing.JFrame {
         }      
     }
     
+    // Dalam f_detailTransaksi.java
     int row = 0;
     private void tampil_field(){
         row = tabel_transaksi.getSelectedRow();
-        
-        combox_barang.setSelectedItem(String.valueOf(tableModel.getValueAt(row, 5)));
-        txt_kuantitas.setText(String.valueOf(tableModel.getValueAt(row, 7)));
-        txt_total.setText(String.valueOf(tableModel.getValueAt(row, 8)));
+
+        if (row == -1) {
+            return;
+        }
+
+        String kodeSupplierDariTabel = String.valueOf(tableModel.getValueAt(row, 2));
+        String kodeBarangDariTabel = String.valueOf(tableModel.getValueAt(row, 3));
+        String namaSupplierDariTabel = String.valueOf(tableModel.getValueAt(row, 4));
+        String namaBarangDariTabel = String.valueOf(tableModel.getValueAt(row, 5));
+        String kuantitasDariTabel = String.valueOf(tableModel.getValueAt(row, 7));
+        String totalHargaFormattedDariTabel = String.valueOf(tableModel.getValueAt(row, 8)); // Ini tetap berformat Rupiah dari tabel
+
+        // 1. Set ComboBox Supplier
+        combox_supplier.setSelectedItem(namaSupplierDariTabel);
+
+        // Gunakan SwingUtilities.invokeLater untuk menunda pengisian field lain
+        // sampai event dari setSelectedItem() dan pemuatan comboxBarang() beres.
+        SwingUtilities.invokeLater(() -> {
+            Connection kon = null;
+            PreparedStatement pst = null;
+            ResultSet res = null;
+            try {
+                Class.forName(driver);
+                kon = DriverManager.getConnection(database, user, pass);
+
+                // 1. Set ComboBox Barang (ini untuk visualisasi di combobox)
+                combox_barang.setSelectedItem(namaBarangDariTabel);
+
+                // 2. Ambil harga satuan barang langsung dari database untuk txt_nominal
+                String SQL_HARGA = "SELECT harga FROM t_barang WHERE kode_barang = ?";
+                pst = kon.prepareStatement(SQL_HARGA);
+                pst.setString(1, kodeBarangDariTabel);
+                res = pst.executeQuery();
+                if (res.next()) {
+                    int hargaSatuan = res.getInt("harga");
+                    txt_nominal.setText(formatRupiah(hargaSatuan)); // Tampilkan harga satuan dalam format Rupiah
+                } else {
+                    txt_nominal.setText("");
+                    System.err.println("Barang dengan kode " + kodeBarangDariTabel + " tidak ditemukan di t_barang.");
+                }
+
+                // 3. Set nilai kuantitas
+                txt_kuantitas.setText(kuantitasDariTabel);
+
+                // 4. Parse dan set txt_total dari nilai tabel yang sudah berformat
+                // INI ADALAH BAGIAN UTAMA UNTUK TXT_TOTAL
+                try {
+                    int totalHargaParsed = parseRupiah(totalHargaFormattedDariTabel);
+                    txt_total.setText(String.valueOf(totalHargaParsed)); // Tampilkan sebagai angka biasa
+                } catch (java.text.ParseException e) {
+                    System.err.println("Error parsing total price from table: " + e.getMessage());
+                    JOptionPane.showMessageDialog(null, "Error mengurai total harga dari tabel: " + e.getMessage(), "Error Data", JOptionPane.ERROR_MESSAGE);
+                    txt_total.setText("0"); // Set ke "0" jika gagal parse
+                }
+
+                // PENTING: JANGAN PANGGIL calculateTotal() di sini jika Anda tidak ingin txt_total diformat Rupiah.
+                // calculateTotal() selalu memformat txt_total. Jika Anda ingin angka biasa, jangan panggil itu.
+                // Jika Anda tetap ingin fungsi calculateTotal() untuk mengupdate saat kuantitas/nominal diubah
+                // secara manual, maka txt_total akan diformat Rupiah. Putuskan prioritasnya.
+                // Kalau mau txt_total angka biasa, HAPUS BARIS calculateTotal() ini dari sini.
+                // calculateTotal(); // <- Hapus baris ini jika Anda ingin txt_total selalu angka biasa dari DB.
+
+            } catch (SQLException ex) {
+                System.err.println("SQL Error in tampil_field (SwingUtilities.invokeLater): " + ex.getMessage());
+                JOptionPane.showMessageDialog(null, "Error database saat mengisi detail transaksi: " + ex.getMessage(), "Error DB", JOptionPane.ERROR_MESSAGE);
+                txt_nominal.setText("");
+                txt_total.setText("0");
+            } catch (ClassNotFoundException ex) {
+                System.err.println("Driver database tidak ditemukan in tampil_field (SwingUtilities.invokeLater): " + ex.getMessage());
+                JOptionPane.showMessageDialog(null, "Driver database tidak ditemukan.", "Error Driver", JOptionPane.ERROR_MESSAGE);
+                txt_nominal.setText("");
+                txt_total.setText("0");
+            } catch (Exception ex) {
+                System.err.println("General error in tampil_field (SwingUtilities.invokeLater): " + ex.getMessage());
+                JOptionPane.showMessageDialog(null, "Terjadi kesalahan tak terduga saat mengisi detail transaksi: " + ex.getMessage(), "Error Umum", JOptionPane.ERROR_MESSAGE);
+                txt_nominal.setText("");
+                txt_total.setText("0");
+            } finally {
+                try {
+                    if (res != null) res.close();
+                    if (pst != null) pst.close();
+                    if (kon != null) kon.close();
+                } catch (SQLException closeEx) {
+                    System.err.println("Error closing DB resources in tampil_field (finally): " + closeEx.getMessage());
+                }
+            }
+        }); // Akhir SwingUtilities.invokeLater
     }
     
     String data []=new String[9];
     private void settableload(){
-
         Connection kon = null;
         PreparedStatement pst = null;
         ResultSet res = null;
@@ -247,23 +333,23 @@ public class f_detailTransaksi extends javax.swing.JFrame {
 
             if (!idTransaksi.isEmpty()) {
                 String SQL = "SELECT "
-                        + "t_detail_transaksi.id_transaksi, "
-                        + "t_detail_transaksi.id_detail_transaksi, "
-                        + "t_detail_transaksi.kode_supplier, "
-                        + "t_detail_transaksi.kode_barang, " // Use kode_barang from detail, not t_barang (join later)
-                        + "t_supplier.nama_supplier, "
-                        + "t_barang.nama_barang, "
-                        + "t_barang.jenis_barang, "
-                        + "t_detail_transaksi.quantity, "
-                        + "t_detail_transaksi.subtotal "
-                        + "FROM "
-                        + "t_detail_transaksi "
-                        + "INNER JOIN t_barang ON t_detail_transaksi.kode_barang = t_barang.kode_barang "
-                        + "INNER JOIN t_supplier ON t_detail_transaksi.kode_supplier = t_supplier.kode_supplier " // Join on detail's kode_supplier
-                        + "WHERE "
-                        + "t_detail_transaksi.id_transaksi = ?";
+                                + "t_detail_transaksi.id_transaksi, "
+                                + "t_detail_transaksi.id_detail_transaksi, "
+                                + "t_detail_transaksi.kode_supplier, "
+                                + "t_detail_transaksi.kode_barang, "
+                                + "t_supplier.nama_supplier, "
+                                + "t_barang.nama_barang, "
+                                + "t_barang.jenis_barang, "
+                                + "t_detail_transaksi.quantity, "
+                                + "t_detail_transaksi.subtotal "
+                                + "FROM "
+                                + "t_detail_transaksi "
+                                + "INNER JOIN t_barang ON t_detail_transaksi.kode_barang = t_barang.kode_barang "
+                                + "INNER JOIN t_supplier ON t_detail_transaksi.kode_supplier = t_supplier.kode_supplier "
+                                + "WHERE "
+                                + "t_detail_transaksi.id_transaksi = ?";
 
-                pst = kon.prepareStatement(SQL); // Re-use pst, but better to create new one or null it
+                pst = kon.prepareStatement(SQL);
                 pst.setString(1, idTransaksi);
                 resDetail = pst.executeQuery();
 
@@ -278,9 +364,8 @@ public class f_detailTransaksi extends javax.swing.JFrame {
                     data[5] = resDetail.getString("nama_barang");
                     data[6] = resDetail.getString("jenis_barang");
                     data[7] = resDetail.getString("quantity");
-                    // Format subtotal as currency for display
                     int subtotalValue = resDetail.getInt("subtotal");
-                    data[8] = formatCurrency(subtotalValue);
+                    data[8] = formatRupiah(subtotalValue); // Ini adalah kolom "Total Harga"
                     tableModel.addRow(data);
                 }
             }
@@ -289,7 +374,6 @@ public class f_detailTransaksi extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.INFORMATION_MESSAGE);
             System.exit(0);
         } finally {
-            // Close resources
             try {
                 if (res != null) res.close();
                 if (resDetail != null) resDetail.close();
@@ -306,19 +390,23 @@ public class f_detailTransaksi extends javax.swing.JFrame {
         try {
             int quantity = Integer.parseInt(txt_kuantitas.getText());
 
-            // Ensure quantity is non-negative
             if (quantity < 0) {
-                quantity = 0; // Set quantity to 0 if it's negative
-                txt_kuantitas.setText("0"); // Update the text field to show 0
+                quantity = 0;
+                txt_kuantitas.setText("0");
             }
 
-            int price = Integer.parseInt(txt_nominal.getText().replace(".", "").replace(",", "")); // Remove formatting for calculation
+            // Pastikan txt_nominal sudah diformat Rupiah, dan parseRupiah yang digunakan
+            int price = parseRupiah(txt_nominal.getText()); 
             int total = quantity * price;
 
-            // Format the total and set it in txt_total
-            txt_total.setText(formatCurrency(total));
+            txt_total.setText(formatRupiah(total));
         } catch (NumberFormatException e) {
-            txt_total.setText("0"); // Reset total if input is invalid
+            // Jika kuantitas atau nominal tidak valid (misalnya kosong atau bukan angka)
+            txt_total.setText("0"); // Set total ke 0
+        } catch (java.text.ParseException e) {
+            // Jika txt_nominal tidak bisa di-parse oleh parseRupiah
+            System.err.println("Error parsing nominal in calculateTotal: " + e.getMessage());
+            txt_total.setText("0");
         }
     }
     
@@ -478,7 +566,7 @@ public class f_detailTransaksi extends javax.swing.JFrame {
             // 2. Retrieve new data from form components
             String selectedBarangName = (String) combox_barang.getSelectedItem();
             int quantity = Integer.parseInt(txt_kuantitas.getText());
-            int hargaSatuan = parseCurrency(txt_nominal.getText()); // Use parseCurrency
+            int hargaSatuan = parseRupiah(txt_nominal.getText()); // Use parseCurrency
 
             // 3. Calculate new subtotal
             int newSubtotal = quantity * hargaSatuan;
@@ -580,8 +668,8 @@ public class f_detailTransaksi extends javax.swing.JFrame {
         jLabel2.setText("Nama Barang");
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
 
-        btn_ubah.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btn_ubah.setText("Ubah");
+        btn_ubah.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btn_ubah.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_ubahActionPerformed(evt);
@@ -607,16 +695,16 @@ public class f_detailTransaksi extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(tabel_transaksi);
 
-        btn_tambah.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btn_tambah.setText("Tambah");
+        btn_tambah.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btn_tambah.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_tambahActionPerformed(evt);
             }
         });
 
-        btn_hapus.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btn_hapus.setText("Hapus");
+        btn_hapus.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btn_hapus.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_hapusActionPerformed(evt);
@@ -655,8 +743,8 @@ public class f_detailTransaksi extends javax.swing.JFrame {
             }
         });
 
-        btn_kembali.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btn_kembali.setText("Kembali");
+        btn_kembali.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btn_kembali.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_kembaliActionPerformed(evt);
@@ -669,10 +757,11 @@ public class f_detailTransaksi extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(39, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(875, 875, 875)
+                        .addGap(844, 844, 844)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addComponent(btn_hapus, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -681,37 +770,34 @@ public class f_detailTransaksi extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(btn_tambah, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(btn_kembali, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jLabel1)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1225, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(31, 31, 31)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1225, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(jLabel6)
+                                .addGap(18, 18, 18))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(jLabel5)
+                                .addGap(28, 28, 28)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(txt_transaksi)
+                            .addComponent(combox_supplier, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(46, 46, 46)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel2)
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel4))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                        .addComponent(jLabel6)
-                                        .addGap(18, 18, 18))
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                        .addComponent(jLabel5)
-                                        .addGap(28, 28, 28)))
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(txt_transaksi, javax.swing.GroupLayout.DEFAULT_SIZE, 224, Short.MAX_VALUE)
-                                    .addComponent(combox_supplier, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addGap(46, 46, 46)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel2)
-                                    .addComponent(jLabel3)
-                                    .addComponent(jLabel4))
+                                .addComponent(combox_barang, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(combox_barang, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(txt_nominal, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                        .addComponent(txt_total, javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(txt_kuantitas, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE)))))))
-                .addContainerGap(23, Short.MAX_VALUE))
+                                .addComponent(txt_nominal, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(txt_total, javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(txt_kuantitas, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                .addGap(15, 15, 15))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -747,10 +833,10 @@ public class f_detailTransaksi extends javax.swing.JFrame {
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 342, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btn_kembali, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(20, Short.MAX_VALUE))
+                .addContainerGap(55, Short.MAX_VALUE))
         );
 
-        setSize(new java.awt.Dimension(1293, 830));
+        setSize(new java.awt.Dimension(1293, 865));
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
@@ -763,30 +849,58 @@ public class f_detailTransaksi extends javax.swing.JFrame {
 
     private void combox_barangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_combox_barangActionPerformed
         String selectedItem = (String) combox_barang.getSelectedItem();
-    
-        try {
-            Connection kon = DriverManager.getConnection(database, user, pass);
-            String SQL = "SELECT kode_barang, harga FROM t_barang WHERE nama_barang = ? AND kode_supplier = ?";
-            PreparedStatement pst = kon.prepareStatement(SQL);
-            pst.setString(1, selectedItem);
-            pst.setString(2, kodeSup); // Use the current supplier's code
+        if (selectedItem == null || selectedItem.isEmpty()) {
+            txt_nominal.setText("");
+            txt_kuantitas.setText(""); // Reset kuantitas juga jika barang kosong
+            txt_total.setText("");
+            return;
+        }
 
-            ResultSet res = pst.executeQuery();
+        Connection kon = null;
+        PreparedStatement pst = null;
+        ResultSet res = null;
+        try {
+            Class.forName(driver); // Pastikan Class.forName dipanggil
+            kon = DriverManager.getConnection(database, user, pass);
+
+            String SQL = "SELECT kode_barang, harga FROM t_barang WHERE nama_barang = ? AND kode_supplier = ?";
+            pst = kon.prepareStatement(SQL);
+            pst.setString(1, selectedItem);
+            pst.setString(2, kodeSup); // Gunakan kodeSup yang sudah di-set dari combox_supplierActionPerformed
+
+            res = pst.executeQuery();
 
             if (res.next()) {
                 int harga = res.getInt("harga");
-                txt_nominal.setText(formatCurrency(harga)); // Format the price
+                txt_nominal.setText(formatRupiah(harga)); // Format harga dan set ke txt_nominal
+            } else {
+                txt_nominal.setText(""); // Kosongkan jika barang tidak ditemukan untuk supplier ini
+                System.err.println("Barang '" + selectedItem + "' tidak ditemukan untuk supplier '" + kodeSup + "'.");
             }
 
-            res.close();
-            pst.close();
-            kon.close();
+            // Panggil calculateTotal() di sini agar total segera diperbarui setelah nominal berubah
+            calculateTotal();
 
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error database saat memuat barang: " + ex.getMessage(), "Error DB", JOptionPane.ERROR_MESSAGE);
+            System.err.println("SQL Error in combox_barangActionPerformed: " + ex.getMessage());
+            txt_nominal.setText("");
+        } catch (ClassNotFoundException ex) {
+            JOptionPane.showMessageDialog(null, "Driver database tidak ditemukan.", "Error Driver", JOptionPane.ERROR_MESSAGE);
+            System.err.println("Class Not Found Error in combox_barangActionPerformed: " + ex.getMessage());
+            txt_nominal.setText("");
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null,
-                    e.getMessage(), "Error",
-                    JOptionPane.INFORMATION_MESSAGE);
-            System.err.println(e.getMessage());
+            JOptionPane.showMessageDialog(null, "Terjadi kesalahan tak terduga saat memilih barang: " + e.getMessage(), "Error Umum", JOptionPane.ERROR_MESSAGE);
+            System.err.println("General Error in combox_barangActionPerformed: " + e.getMessage());
+            txt_nominal.setText("");
+        } finally {
+            try {
+                if (res != null) res.close();
+                if (pst != null) pst.close();
+                if (kon != null) kon.close();
+            } catch (SQLException closeEx) {
+                System.err.println("Error closing resources in combox_barangActionPerformed: " + closeEx.getMessage());
+            }
         }
     }//GEN-LAST:event_combox_barangActionPerformed
 
@@ -823,7 +937,7 @@ public class f_detailTransaksi extends javax.swing.JFrame {
         int subtotalToDelete = 0;
         try {
             // Parse the formatted subtotal from the table model
-            subtotalToDelete = parseCurrency(String.valueOf(tableModel.getValueAt(selectedRow, 8)));
+            subtotalToDelete = parseRupiah(String.valueOf(tableModel.getValueAt(selectedRow, 8)));
         } catch (java.text.ParseException e) {
             JOptionPane.showMessageDialog(null, "Gagal mengurai total harga dari tabel. Tidak dapat menghapus.", "Kesalahan Data", JOptionPane.ERROR_MESSAGE);
             System.err.println("Error parsing subtotal for deletion: " + e.getMessage());
