@@ -672,9 +672,10 @@ public class f_transaksi extends javax.swing.JFrame {
         if (selectedRow != -1) {
             // Ambil ID Transaksi dari kolom pertama (index 0) yang tersembunyi
             String idTransaksi = String.valueOf(tableModel.getValueAt(selectedRow, 0));
+            String namaTransaksi = String.valueOf(tableModel.getValueAt(selectedRow, 1));
 
             // Buka f_detailTransaksi dan kirim ID Transaksi
-            f_detailTransaksi detail = new f_detailTransaksi(idTransaksi );
+            f_detailTransaksi detail = new f_detailTransaksi(idTransaksi, namaTransaksi);
             detail.setVisible(true);
             
             this.setVisible(false);
