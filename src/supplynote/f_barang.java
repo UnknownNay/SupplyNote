@@ -9,6 +9,8 @@ package supplynote;
 import javax.swing.*;
 
 import java.sql.*;
+import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.UUID;
 /**
  *
@@ -90,16 +92,38 @@ public class f_barang extends javax.swing.JFrame {
     int row = 0;
     private void tampil_field(){
         row = tabel_barang.getSelectedRow();
-        
+
         txt_namaBarang.setText(String.valueOf(tableModel.getValueAt(row, 3)));
         txt_jenisBarang.setText(String.valueOf(tableModel.getValueAt(row, 4)));
-        txt_harga.setText(String.valueOf(tableModel.getValueAt(row, 5)));
+
+        String hargaFormatted = String.valueOf(tableModel.getValueAt(row, 5));
+        try {
+            int hargaParsed = parseRupiah(hargaFormatted); // Parse kembali dari format Rupiah
+            txt_harga.setText(String.valueOf(hargaParsed)); // Tampilkan sebagai angka biasa di field input
+        } catch (java.text.ParseException e) {
+            System.err.println("Error parsing price from table: " + e.getMessage());
+            txt_harga.setText(""); // Kosongkan jika gagal di-parse
+        }
     }
     
     public void membersihkan_teks(){
         txt_namaBarang.setText("");
         txt_jenisBarang.setText("");
         txt_harga.setText("");
+    }
+    
+    private String formatRupiah(int amount) {
+        NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("in", "ID")); // Locale Indonesia untuk Rp.
+        // Opsional: Hilangkan koma desimal jika harga selalu bilangan bulat
+        formatter.setMaximumFractionDigits(0);
+        formatter.setMinimumFractionDigits(0);
+        return formatter.format(amount);
+    }
+
+    private int parseRupiah(String formattedAmount) throws java.text.ParseException {
+        NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("in", "ID"));
+        Number number = formatter.parse(formattedAmount);
+        return number.intValue();
     }
     
     private String setkodeSup(String namaSup){
@@ -139,11 +163,11 @@ public class f_barang extends javax.swing.JFrame {
             Connection kon = DriverManager.getConnection(database, user, pass);
             Statement stt = kon.createStatement();
             String SQL = "SELECT t_supplier.kode_supplier, t_barang.kode_barang, t_supplier.nama_supplier, t_barang.nama_barang, "
-                    + "t_barang.jenis_barang, t_barang.harga FROM t_supplier "
-                    + "INNER JOIN t_barang ON t_supplier.kode_supplier = t_barang.kode_supplier";
+                        + "t_barang.jenis_barang, t_barang.harga FROM t_supplier "
+                        + "INNER JOIN t_barang ON t_supplier.kode_supplier = t_barang.kode_supplier";
             ResultSet res = stt.executeQuery(SQL);
-            
-            
+
+
             tableModel.setRowCount(0);
             while(res.next()){
                 data[0] = res.getString(1);
@@ -151,22 +175,23 @@ public class f_barang extends javax.swing.JFrame {
                 data[2] = res.getString(3);
                 data[3] = res.getString(4);
                 data[4] = res.getString(5);
-                data[5] = res.getString(6);
+                int hargaInt = res.getInt(6); // Ambil harga sebagai integer
+                data[5] = formatRupiah(hargaInt); // Format menjadi Rupiah
                 tableModel.addRow(data);
-                
+
             }
-            
+
             res.close();
             stt.close();
             kon.close();
-            
+
             membersihkan_teks();
-            
+
         }catch(Exception ex){
             System.err.println(ex.getMessage());
             JOptionPane.showMessageDialog(null,
-                    ex.getMessage(), "Error", 
-                    JOptionPane.INFORMATION_MESSAGE);
+                        ex.getMessage(), "Error",
+                        JOptionPane.INFORMATION_MESSAGE);
         }
     }
     
@@ -196,7 +221,8 @@ public class f_barang extends javax.swing.JFrame {
                     data[2] = res.getString(3); 
                     data[3] = res.getString(4); 
                     data[4] = res.getString(5); 
-                    data[5] = res.getString(6);
+                    int hargaInt = res.getInt(6); // Ambil harga sebagai integer
+                    data[5] = formatRupiah(hargaInt); // Format menjadi Rupiah
                     tableModel.addRow(data);
                 }
                 pst.close();
@@ -247,32 +273,32 @@ public class f_barang extends javax.swing.JFrame {
 
         jPanel1.setBackground(new java.awt.Color(16, 74, 107));
 
-        btn_barang.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btn_barang.setText("Barang");
-        btn_barang.setToolTipText("");
         btn_barang.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        btn_barang.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btn_barang.setToolTipText("");
         btn_barang.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_barangActionPerformed(evt);
             }
         });
 
+        btn_keuangan.setText("Transaksi");
         btn_keuangan.setBackground(new java.awt.Color(33, 148, 151));
+        btn_keuangan.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         btn_keuangan.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btn_keuangan.setForeground(new java.awt.Color(255, 255, 255));
-        btn_keuangan.setText("Transaksi");
-        btn_keuangan.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         btn_keuangan.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_keuanganActionPerformed(evt);
             }
         });
 
+        btn_supplier.setText("Supplier");
         btn_supplier.setBackground(new java.awt.Color(33, 148, 151));
+        btn_supplier.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         btn_supplier.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btn_supplier.setForeground(new java.awt.Color(255, 255, 255));
-        btn_supplier.setText("Supplier");
-        btn_supplier.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         btn_supplier.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_supplierActionPerformed(evt);
@@ -302,7 +328,7 @@ public class f_barang extends javax.swing.JFrame {
                 .addComponent(btn_barang, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btn_keuangan, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(549, Short.MAX_VALUE))
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel1Layout.createSequentialGroup()
                     .addGap(126, 126, 126)
@@ -310,11 +336,11 @@ public class f_barang extends javax.swing.JFrame {
                     .addContainerGap(637, Short.MAX_VALUE)))
         );
 
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 48)); // NOI18N
         jLabel1.setText("Pencatatan Barang");
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 48)); // NOI18N
 
-        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel2.setText("Nama Supplier");
+        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
 
         combox_supplier.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         combox_supplier.setMinimumSize(new java.awt.Dimension(72, 108));
@@ -325,8 +351,8 @@ public class f_barang extends javax.swing.JFrame {
             }
         });
 
-        btn_ubah.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btn_ubah.setText("Ubah");
+        btn_ubah.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btn_ubah.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_ubahActionPerformed(evt);
@@ -352,39 +378,39 @@ public class f_barang extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(tabel_barang);
 
-        btn_tambah.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btn_tambah.setText("Tambah");
+        btn_tambah.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btn_tambah.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_tambahActionPerformed(evt);
             }
         });
 
-        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel3.setText("Nama Barang");
+        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
 
         txt_namaBarang.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
-        jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel4.setText("Jenis Barang");
+        jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
 
         txt_jenisBarang.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
-        jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel6.setText("Harga");
+        jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
 
         txt_harga.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
-        btn_tampil.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btn_tampil.setText("Tampilkan Semua");
+        btn_tampil.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btn_tampil.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_tampilActionPerformed(evt);
             }
         });
 
-        btn_hapus.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btn_hapus.setText("Hapus");
+        btn_hapus.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btn_hapus.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_hapusActionPerformed(evt);
@@ -456,7 +482,7 @@ public class f_barang extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(txt_jenisBarang, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel4))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 80, Short.MAX_VALUE)
+                .addGap(43, 43, 43)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(btn_hapus, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btn_tambah, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -465,10 +491,10 @@ public class f_barang extends javax.swing.JFrame {
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 342, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btn_tampil, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(24, Short.MAX_VALUE))
+                .addContainerGap(47, Short.MAX_VALUE))
         );
 
-        setSize(new java.awt.Dimension(1489, 826));
+        setSize(new java.awt.Dimension(1489, 812));
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
@@ -732,42 +758,94 @@ public class f_barang extends javax.swing.JFrame {
         }
 
         String kodeBrg = tableModel.getValueAt(selectedRow, 1).toString();
-        String namaBrg = tableModel.getValueAt(selectedRow, 3).toString(); // Get item name for confirmation
-        String selectedSupplier = (String) combox_supplier.getSelectedItem(); // Ambil supplier yang sedang aktif
+        String namaBrg = tableModel.getValueAt(selectedRow, 3).toString();
+        String selectedSupplierInCombox = (String) combox_supplier.getSelectedItem(); // Ambil supplier yang sedang aktif
 
-        int confirm = JOptionPane.showConfirmDialog(null, 
-                "Apakah Anda yakin ingin menghapus barang '" + namaBrg + "'? Ini juga akan menghapus detail transaksi terkait.", 
+        int confirm = JOptionPane.showConfirmDialog(null,
+                "Apakah Anda yakin ingin menghapus barang '" + namaBrg + "'? " +
+                "Ini juga akan menghapus detail transaksi terkait dan memperbarui total transaksi utama.",
                 "Konfirmasi Hapus", JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
-            Connection kon = null; // Deklarasikan Connection di luar try
-            PreparedStatement pstDetail = null; // Deklarasikan PreparedStatement di luar try
-            PreparedStatement pstBarang = null; // Deklarasikan PreparedStatement di luar try
+            Connection kon = null;
+            PreparedStatement pstDetailSelect = null;
+            PreparedStatement pstDetailDelete = null;
+            PreparedStatement pstBarangDelete = null;
+            ResultSet rsAffectedDetails = null;
 
             try {
                 Class.forName(driver);
                 kon = DriverManager.getConnection(database, user, pass);
                 kon.setAutoCommit(false); // Mulai transaksi
 
-                // 1. Hapus record terkait dari t_detail_transaksi
+                // 1. Dapatkan id_transaksi dan subtotal lama dari detail transaksi yang akan dihapus
+                // Gunakan Map untuk menyimpan id_transaksi dan total perubahan yang akan dikurangi
+                java.util.Map<String, Integer> transactionIdToSubtotalChange = new java.util.HashMap<>();
+
+                String sqlGetDetails = "SELECT id_transaksi, subtotal FROM t_detail_transaksi WHERE kode_barang = ?";
+                pstDetailSelect = kon.prepareStatement(sqlGetDetails);
+                pstDetailSelect.setString(1, kodeBrg);
+                rsAffectedDetails = pstDetailSelect.executeQuery();
+
+                while (rsAffectedDetails.next()) {
+                    String idTrans = rsAffectedDetails.getString("id_transaksi");
+                    int subtotal = rsAffectedDetails.getInt("subtotal");
+                    // Tambahkan subtotal ke perubahan untuk id_transaksi ini (akan dikurangi nanti)
+                    transactionIdToSubtotalChange.put(idTrans, transactionIdToSubtotalChange.getOrDefault(idTrans, 0) + subtotal);
+                }
+                rsAffectedDetails.close();
+                pstDetailSelect.close();
+
+                // 2. Hapus detail transaksi yang terkait dengan barang ini
                 String sqlDeleteDetail = "DELETE FROM t_detail_transaksi WHERE kode_barang = ?";
-                pstDetail = kon.prepareStatement(sqlDeleteDetail);
-                pstDetail.setString(1, kodeBrg);
-                pstDetail.executeUpdate();
-                pstDetail.close(); // Tutup setelah digunakan
+                pstDetailDelete = kon.prepareStatement(sqlDeleteDetail);
+                pstDetailDelete.setString(1, kodeBrg);
+                pstDetailDelete.executeUpdate();
+                pstDetailDelete.close();
 
-                // 2. Hapus barang dari t_barang
+                // 3. Hapus barang dari t_barang
                 String sqlDeleteBarang = "DELETE FROM t_barang WHERE kode_barang = ?";
-                pstBarang = kon.prepareStatement(sqlDeleteBarang);
-                pstBarang.setString(1, kodeBrg);
+                pstBarangDelete = kon.prepareStatement(sqlDeleteBarang);
+                pstBarangDelete.setString(1, kodeBrg);
 
-                int rowsAffected = pstBarang.executeUpdate();
-                if (rowsAffected > 0) {
-                    kon.commit(); // Commit transaksi jika kedua penghapusan berhasil
-                    JOptionPane.showMessageDialog(null, "Data barang dan detail transaksi terkait berhasil dihapus.");
-                    // Refresh tabel berdasarkan supplier yang dipilih atau semua data
-                    if (selectedSupplier != null && !selectedSupplier.isEmpty()) {
-                        filterDataBySupplier(selectedSupplier);
+                int rowsAffectedBarang = pstBarangDelete.executeUpdate();
+                if (rowsAffectedBarang > 0) {
+                    // 4. Perbarui total_transaksi untuk setiap transaksi yang terpengaruh
+                    for (java.util.Map.Entry<String, Integer> entry : transactionIdToSubtotalChange.entrySet()) {
+                        String idTrans = entry.getKey();
+                        int subtotalToRemove = entry.getValue(); // Ini adalah subtotal yang perlu dikurangi
+
+                        // Ambil total_transaksi saat ini
+                        String sqlGetCurrentTotal = "SELECT total_transaksi FROM t_transaksi WHERE id_transaksi = ?";
+                        PreparedStatement pstGetCurrentTotal = kon.prepareStatement(sqlGetCurrentTotal);
+                        pstGetCurrentTotal.setString(1, idTrans);
+                        ResultSet rsCurrentTotal = pstGetCurrentTotal.executeQuery();
+                        int currentTotal = 0;
+                        if (rsCurrentTotal.next()) {
+                            currentTotal = rsCurrentTotal.getInt("total_transaksi");
+                        }
+                        rsCurrentTotal.close();
+                        pstGetCurrentTotal.close();
+
+                        // Hitung total baru
+                        int newTotal = currentTotal - subtotalToRemove;
+                        if (newTotal < 0) newTotal = 0; // Pastikan total tidak negatif
+
+                        // Update total_transaksi
+                        String sqlUpdateTotal = "UPDATE t_transaksi SET total_transaksi = ? WHERE id_transaksi = ?";
+                        PreparedStatement pstUpdateTotal = kon.prepareStatement(sqlUpdateTotal);
+                        pstUpdateTotal.setInt(1, newTotal);
+                        pstUpdateTotal.setString(2, idTrans);
+                        pstUpdateTotal.executeUpdate();
+                        pstUpdateTotal.close();
+                    }
+
+                    kon.commit(); // Commit transaksi
+                    JOptionPane.showMessageDialog(null, "Data barang, detail transaksi, dan total transaksi terkait berhasil dihapus/diperbarui.");
+                    // Refresh tabel barang. Pilihannya adalah menampilkan semua barang
+                    // atau hanya barang dari supplier yang sedang dipilih di combobox.
+                    if (selectedSupplierInCombox != null && !selectedSupplierInCombox.isEmpty()) {
+                        filterDataBySupplier(selectedSupplierInCombox);
                     } else {
                         settableload(); // Muat ulang semua data jika tidak ada supplier yang dipilih
                     }
@@ -779,45 +857,29 @@ public class f_barang extends javax.swing.JFrame {
 
             } catch (SQLException ex) {
                 try {
-                    if (kon != null) {
-                        kon.rollback(); // Rollback jika terjadi SQLException
-                    }
+                    if (kon != null) kon.rollback();
                 } catch (SQLException rollbackEx) {
                     System.err.println("Error during rollback: " + rollbackEx.getMessage());
                 }
-                JOptionPane.showMessageDialog(null, 
-                            "Gagal menghapus data: " + ex.getMessage(), 
-                            "Error Database", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null,
+                        "Gagal menghapus data: " + ex.getMessage(),
+                        "Error Database", JOptionPane.ERROR_MESSAGE);
                 System.err.println("SQL Error: " + ex.getMessage());
             } catch (ClassNotFoundException ex) {
                 JOptionPane.showMessageDialog(null, "Driver database tidak ditemukan: " + ex.getMessage(), "Error Driver", JOptionPane.ERROR_MESSAGE);
                 System.err.println("Class Not Found Error: " + ex.getMessage());
             } catch (Exception ex) {
-                try {
-                    if (kon != null) {
-                        kon.rollback(); // Rollback untuk exception umum
-                    }
-                } catch (SQLException rollbackEx) {
-                    System.err.println("Error during rollback for general exception: " + rollbackEx.getMessage());
-                }
-                JOptionPane.showMessageDialog(null, 
-                            "Terjadi kesalahan: " + ex.getMessage(), 
-                            "Error Umum", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Terjadi kesalahan tak terduga: " + ex.getMessage(), "Error Umum", JOptionPane.ERROR_MESSAGE);
                 System.err.println("General Error: " + ex.getMessage());
             } finally {
-                // Pastikan semua PreparedStatement dan Connection ditutup
                 try {
-                    if (pstDetail != null) {
-                        pstDetail.close();
-                    }
-                    if (pstBarang != null) {
-                        pstBarang.close();
-                    }
-                    if (kon != null) {
-                        kon.close();
-                    }
+                    if (rsAffectedDetails != null) rsAffectedDetails.close();
+                    if (pstDetailSelect != null) pstDetailSelect.close();
+                    if (pstDetailDelete != null) pstDetailDelete.close();
+                    if (pstBarangDelete != null) pstBarangDelete.close();
+                    if (kon != null) kon.close();
                 } catch (SQLException closeEx) {
-                    System.err.println("Error closing database resources in finally block: " + closeEx.getMessage());
+                    System.err.println("Error closing resources: " + closeEx.getMessage());
                 }
             }
         }

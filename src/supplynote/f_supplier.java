@@ -586,64 +586,104 @@ public class f_supplier extends javax.swing.JFrame {
             return;
         }
 
-        String kodeSup = tableModel.getValueAt(selectedRow, 0).toString(); // Get Kode Supplier (Column 0)
-        String namaSup = tableModel.getValueAt(selectedRow, 1).toString(); // Get Nama Supplier for confirmation
+        String kodeSup = tableModel.getValueAt(selectedRow, 0).toString();
+        String namaSup = tableModel.getValueAt(selectedRow, 1).toString();
 
-        int confirm = JOptionPane.showConfirmDialog(null, 
+        int confirm = JOptionPane.showConfirmDialog(null,
                 "Apakah Anda yakin ingin menghapus supplier '" + namaSup + "'? " +
-                "Ini juga akan menghapus semua barang yang terkait dengan supplier ini.", 
+                "Ini juga akan menghapus semua barang yang terkait dengan supplier ini, " +
+                "serta memperbarui total harga transaksi yang terpengaruh.",
                 "Konfirmasi Hapus Supplier", JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
-            Connection kon = null; // Declare Connection outside try for finally block
+            Connection kon = null;
+            PreparedStatement pstBarang = null;
+            PreparedStatement pstSupplier = null;
+            Statement stt = null; // Tambahkan untuk mendapatkan semua transaksi yang terpengaruh
+
             try {
                 Class.forName(driver);
                 kon = DriverManager.getConnection(database, user, pass);
-                kon.setAutoCommit(false); // Start transaction
+                kon.setAutoCommit(false); // Mulai transaksi
 
-                // 1. Delete dependent records from t_barang
+                String sqlAffectedTransactions = "SELECT DISTINCT id_transaksi FROM t_detail_transaksi WHERE kode_supplier = ?";
+                PreparedStatement pstAffectedTrans = kon.prepareStatement(sqlAffectedTransactions);
+                pstAffectedTrans.setString(1, kodeSup);
+                ResultSet rsAffectedTrans = pstAffectedTrans.executeQuery();
+
+                java.util.List<String> affectedTransactionIds = new java.util.ArrayList<>();
+                while (rsAffectedTrans.next()) {
+                    affectedTransactionIds.add(rsAffectedTrans.getString("id_transaksi"));
+                }
+                rsAffectedTrans.close();
+                pstAffectedTrans.close();
+
+                // 2. Hapus records terkait dari t_detail_transaksi (melalui t_barang, jika ON DELETE CASCADE sudah benar)
                 String sqlDeleteBarang = "DELETE FROM t_barang WHERE kode_supplier = ?";
-                PreparedStatement pstBarang = kon.prepareStatement(sqlDeleteBarang);
+                pstBarang = kon.prepareStatement(sqlDeleteBarang);
                 pstBarang.setString(1, kodeSup);
-                pstBarang.executeUpdate(); // Execute deletion for associated items
+                pstBarang.executeUpdate();
                 pstBarang.close();
 
-                // 2. Delete the supplier from t_supplier
+
+                // 3. Hapus supplier dari t_supplier
                 String sqlDeleteSupplier = "DELETE FROM t_supplier WHERE kode_supplier = ?";
-                PreparedStatement pstSupplier = kon.prepareStatement(sqlDeleteSupplier);
+                pstSupplier = kon.prepareStatement(sqlDeleteSupplier);
                 pstSupplier.setString(1, kodeSup);
 
                 int rowsAffected = pstSupplier.executeUpdate();
                 if (rowsAffected > 0) {
-                    kon.commit(); // Commit transaction if both deletions are successful
-                    JOptionPane.showMessageDialog(null, "Data supplier dan barang terkait berhasil dihapus.");
-                    settableload(); // Reload the table after successful deletion
-                    membersihkan_teks(); // Clear the text fields
+                    // 4. Hitung ulang dan perbarui total_transaksi untuk setiap transaksi yang terpengaruh
+                    for (String idTrans : affectedTransactionIds) {
+                        String sqlRecalculateTotal = "SELECT SUM(subtotal) FROM t_detail_transaksi WHERE id_transaksi = ?";
+                        PreparedStatement pstRecalculate = kon.prepareStatement(sqlRecalculateTotal);
+                        pstRecalculate.setString(1, idTrans);
+                        ResultSet rsRecalculate = pstRecalculate.executeQuery();
+                        int newTotal = 0;
+                        if (rsRecalculate.next()) {
+                            newTotal = rsRecalculate.getInt(1); // SUM will return 0 if no rows
+                        }
+                        rsRecalculate.close();
+                        pstRecalculate.close();
+
+                        String sqlUpdateTotal = "UPDATE t_transaksi SET total_transaksi = ? WHERE id_transaksi = ?";
+                        PreparedStatement pstUpdateTotal = kon.prepareStatement(sqlUpdateTotal);
+                        pstUpdateTotal.setInt(1, newTotal);
+                        pstUpdateTotal.setString(2, idTrans);
+                        pstUpdateTotal.executeUpdate();
+                        pstUpdateTotal.close();
+                    }
+
+                    kon.commit(); // Commit transaksi jika semua berhasil
+                    JOptionPane.showMessageDialog(null, "Data supplier, barang terkait, dan total transaksi berhasil dihapus/diperbarui.");
+                    settableload(); // Muat ulang tabel supplier
+                    membersihkan_teks();
                 } else {
-                    kon.rollback(); // Rollback if supplier deletion fails
+                    kon.rollback(); // Rollback jika penghapusan supplier gagal
                     JOptionPane.showMessageDialog(null, "Gagal menghapus data supplier.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
 
-                pstSupplier.close();
-
-            } catch (Exception ex) {
+            } catch (SQLException ex) {
                 try {
-                    if (kon != null) {
-                        kon.rollback(); // Rollback in case of any exception
-                    }
+                    if (kon != null) kon.rollback();
                 } catch (SQLException rollbackEx) {
                     System.err.println("Error during rollback: " + rollbackEx.getMessage());
                 }
-                JOptionPane.showMessageDialog(null, 
-                        "Gagal menghapus data: " + ex.getMessage(), 
+                JOptionPane.showMessageDialog(null,
+                        "Gagal menghapus data: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                System.err.println(ex.getMessage());
+            } catch (ClassNotFoundException ex) {
+                 JOptionPane.showMessageDialog(null,
+                        "Driver database tidak ditemukan: " + ex.getMessage(),
                         "Error", JOptionPane.ERROR_MESSAGE);
                 System.err.println(ex.getMessage());
             } finally {
                 try {
-                    if (kon != null) {
-                        kon.close(); // Ensure connection is closed
-                        membersihkan_teks();
-                    }
+                    if (pstBarang != null) pstBarang.close();
+                    if (pstSupplier != null) pstSupplier.close();
+                    if (stt != null) stt.close(); // Pastikan Statement juga ditutup
+                    if (kon != null) kon.close();
                 } catch (SQLException closeEx) {
                     System.err.println("Error closing connection: " + closeEx.getMessage());
                 }
