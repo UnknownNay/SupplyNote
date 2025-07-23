@@ -374,11 +374,12 @@ public class f_detailTransaksi extends javax.swing.JFrame {
 
             // 4. Get kode_barang and kode_supplier from selectedBarangName and current kodeSup
             String kodeBarang = "";
-            String kodeSupplierFromBarang = ""; // This should ideally be the same as kodeSup
+            String kodeSupplierFromBarang = "";
             String sqlGetBarangDetails = "SELECT kode_barang, kode_supplier FROM t_barang WHERE nama_barang = ? AND kode_supplier = ?";
             PreparedStatement pstGetBarangDetails = kon.prepareStatement(sqlGetBarangDetails);
             pstGetBarangDetails.setString(1, selectedBarangName);
-            pstGetBarangDetails.setString(2, selectedIdTransaksi); // Use the currently selected supplier's code
+            // *** CHANGE THIS LINE ***
+            pstGetBarangDetails.setString(2, kodeSup); // Use kodeSup here, which is the supplier's code
             ResultSet resBarangDetails = pstGetBarangDetails.executeQuery();
             if (resBarangDetails.next()) {
                 kodeBarang = resBarangDetails.getString("kode_barang");
@@ -406,14 +407,13 @@ public class f_detailTransaksi extends javax.swing.JFrame {
             pst.setInt(5, quantity);
             pst.setInt(6, hargaSatuan);
             pst.setInt(7, subtotal);
-            
+
             updateTotal(selectedIdTransaksi, subtotal);
 
             int rowsAffected = pst.executeUpdate();
             if (rowsAffected > 0) {
                 JOptionPane.showMessageDialog(null, "Detail transaksi berhasil ditambahkan.", "Informasi", JOptionPane.INFORMATION_MESSAGE);
-                // Optionally, refresh the table or clear input fields
-                 settableload(); // If you have a method to refresh the main table
+                settableload(); // Refresh the main table
                 // membersihkan_teks(); // If you have a method to clear input fields
             } else {
                 JOptionPane.showMessageDialog(null, "Gagal menambahkan detail transaksi.", "Error", JOptionPane.ERROR_MESSAGE);

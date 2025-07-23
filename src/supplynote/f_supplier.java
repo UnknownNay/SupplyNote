@@ -446,7 +446,7 @@ public class f_supplier extends javax.swing.JFrame {
         
         // Ambil Kode Barang dari tabel
         int selectedRow = tabel_supplier.getSelectedRow();
-        String kodeSup = tableModel.getValueAt(selectedRow, 1).toString();
+        String kodeSup = tableModel.getValueAt(selectedRow, 0).toString();
         
         // Ambil data dari text field
         String namaSup = txt_supplier.getText();
