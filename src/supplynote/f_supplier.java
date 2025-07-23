@@ -143,9 +143,9 @@ public class f_supplier extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel1.setBackground(new java.awt.Color(120, 120, 120));
+        jPanel1.setBackground(new java.awt.Color(16, 74, 107));
 
-        btn_barang.setBackground(new java.awt.Color(51, 51, 51));
+        btn_barang.setBackground(new java.awt.Color(33, 148, 151));
         btn_barang.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btn_barang.setForeground(new java.awt.Color(255, 255, 255));
         btn_barang.setText("Barang");
@@ -157,7 +157,7 @@ public class f_supplier extends javax.swing.JFrame {
             }
         });
 
-        btn_transaksi.setBackground(new java.awt.Color(51, 51, 51));
+        btn_transaksi.setBackground(new java.awt.Color(33, 148, 151));
         btn_transaksi.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btn_transaksi.setForeground(new java.awt.Color(255, 255, 255));
         btn_transaksi.setText("Transaksi");
@@ -217,6 +217,7 @@ public class f_supplier extends javax.swing.JFrame {
             }
         });
 
+        tabel_supplier.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         tabel_supplier.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
@@ -228,7 +229,6 @@ public class f_supplier extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        tabel_supplier.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         tabel_supplier.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 tabel_supplierMouseClicked(evt);
@@ -278,6 +278,11 @@ public class f_supplier extends javax.swing.JFrame {
         txt_negara.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
         txt_supplier.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        txt_supplier.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txt_supplierActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -622,6 +627,10 @@ public class f_supplier extends javax.swing.JFrame {
         
         this.setVisible(false);
     }//GEN-LAST:event_btn_transaksiActionPerformed
+
+    private void txt_supplierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_supplierActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txt_supplierActionPerformed
 
     /**
      * @param args the command line arguments
