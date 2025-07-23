@@ -232,6 +232,12 @@ public class f_detailTransaksi extends javax.swing.JFrame {
         row = tabel_transaksi.getSelectedRow();
 
         if (row == -1) {
+            // Bersihkan field jika tidak ada baris yang dipilih
+            // Asumsi Anda punya method membersihkan_teks() yang mengosongkan txt_kuantitas, txt_nominal, txt_total
+            // Jika tidak ada, Anda bisa tambahkan:
+            // txt_kuantitas.setText("");
+            // txt_nominal.setText("");
+            // txt_total.setText("");
             return;
         }
 
@@ -245,8 +251,6 @@ public class f_detailTransaksi extends javax.swing.JFrame {
         // 1. Set ComboBox Supplier
         combox_supplier.setSelectedItem(namaSupplierDariTabel);
 
-        // Gunakan SwingUtilities.invokeLater untuk menunda pengisian field lain
-        // sampai event dari setSelectedItem() dan pemuatan comboxBarang() beres.
         SwingUtilities.invokeLater(() -> {
             Connection kon = null;
             PreparedStatement pst = null;
@@ -256,26 +260,20 @@ public class f_detailTransaksi extends javax.swing.JFrame {
                 kon = DriverManager.getConnection(database, user, pass);
 
                 // 1. Set ComboBox Barang (ini untuk visualisasi di combobox)
+                // Ini akan memicu combox_barangActionPerformed, yang akan mengisi txt_nominal dengan format Rupiah.
+                // Biarkan combox_barangActionPerformed yang mengisi txt_nominal.
                 combox_barang.setSelectedItem(namaBarangDariTabel);
 
-                // 2. Ambil harga satuan barang langsung dari database untuk txt_nominal
-                String SQL_HARGA = "SELECT harga FROM t_barang WHERE kode_barang = ?";
-                pst = kon.prepareStatement(SQL_HARGA);
-                pst.setString(1, kodeBarangDariTabel);
-                res = pst.executeQuery();
-                if (res.next()) {
-                    int hargaSatuan = res.getInt("harga");
-                    txt_nominal.setText(formatRupiah(hargaSatuan)); // Tampilkan harga satuan dalam format Rupiah
-                } else {
-                    txt_nominal.setText("");
-                    System.err.println("Barang dengan kode " + kodeBarangDariTabel + " tidak ditemukan di t_barang.");
-                }
+                // TIDAK PERLU lagi ambil harga satuan di sini karena combox_barangActionPerformed sudah melakukannya.
+                // Jika Anda tetap khawatir dengan timing, dan ingin mengisi txt_nominal langsung,
+                // maka logika pengambilan harga dari DB perlu di sini.
+                // Namun, untuk kejelasan dan menghindari duplikasi, kita bergantung pada combox_barangActionPerformed.
 
-                // 3. Set nilai kuantitas
+                // 2. Set nilai kuantitas
                 txt_kuantitas.setText(kuantitasDariTabel);
 
-                // 4. Parse dan set txt_total dari nilai tabel yang sudah berformat
-                // INI ADALAH BAGIAN UTAMA UNTUK TXT_TOTAL
+                // 3. Parse dan set txt_total dari nilai tabel yang sudah berformat
+                // INI ADALAH BAGIAN UTAMA UNTUK TXT_TOTAL AGAR TETAP ANGKA BIASA
                 try {
                     int totalHargaParsed = parseRupiah(totalHargaFormattedDariTabel);
                     txt_total.setText(String.valueOf(totalHargaParsed)); // Tampilkan sebagai angka biasa
@@ -285,12 +283,9 @@ public class f_detailTransaksi extends javax.swing.JFrame {
                     txt_total.setText("0"); // Set ke "0" jika gagal parse
                 }
 
-                // PENTING: JANGAN PANGGIL calculateTotal() di sini jika Anda tidak ingin txt_total diformat Rupiah.
-                // calculateTotal() selalu memformat txt_total. Jika Anda ingin angka biasa, jangan panggil itu.
-                // Jika Anda tetap ingin fungsi calculateTotal() untuk mengupdate saat kuantitas/nominal diubah
-                // secara manual, maka txt_total akan diformat Rupiah. Putuskan prioritasnya.
-                // Kalau mau txt_total angka biasa, HAPUS BARIS calculateTotal() ini dari sini.
-                // calculateTotal(); // <- Hapus baris ini jika Anda ingin txt_total selalu angka biasa dari DB.
+                // PENTING: JANGAN PANGGIL calculateTotal() di sini.
+                // calculateTotal() akan memformat txt_total ke Rupiah, yang tidak Anda inginkan.
+                // calculateTotal(); // HAPUS BARIS INI!
 
             } catch (SQLException ex) {
                 System.err.println("SQL Error in tampil_field (SwingUtilities.invokeLater): " + ex.getMessage());
@@ -308,10 +303,12 @@ public class f_detailTransaksi extends javax.swing.JFrame {
                 txt_nominal.setText("");
                 txt_total.setText("0");
             } finally {
+                // Tutup resources untuk try-catch yang ada di dalam invokeLater
+                // Note: Tidak ada pst dan res di sini karena sudah dipindahkan reliance ke combox_barangActionPerformed
+                // Jika Anda memilih untuk mengambil harga nominal langsung di tampil_field, pastikan resources ditutup.
+                // Saya asumsikan Anda ingin mengandalkan combox_barangActionPerformed untuk txt_nominal.
                 try {
-                    if (res != null) res.close();
-                    if (pst != null) pst.close();
-                    if (kon != null) kon.close();
+                    if (kon != null) kon.close(); // Tutup koneksi yang dibuka di invokeLater
                 } catch (SQLException closeEx) {
                     System.err.println("Error closing DB resources in tampil_field (finally): " + closeEx.getMessage());
                 }
@@ -395,11 +392,14 @@ public class f_detailTransaksi extends javax.swing.JFrame {
                 txt_kuantitas.setText("0");
             }
 
-            // Pastikan txt_nominal sudah diformat Rupiah, dan parseRupiah yang digunakan
+            // txt_nominal sudah diformat Rupiah dari combox_barangActionPerformed,
+            // jadi kita perlu parse kembali ke int
             int price = parseRupiah(txt_nominal.getText()); 
             int total = quantity * price;
 
-            txt_total.setText(formatRupiah(total));
+            // Cukup set sebagai String dari int, tanpa format Rupiah
+            txt_total.setText(String.valueOf(total)); 
+
         } catch (NumberFormatException e) {
             // Jika kuantitas atau nominal tidak valid (misalnya kosong atau bukan angka)
             txt_total.setText("0"); // Set total ke 0
@@ -446,78 +446,125 @@ public class f_detailTransaksi extends javax.swing.JFrame {
     }
     
     private void addDetailTransaksi() {
+        // Deklarasi variabel di luar try untuk finally block jika diperlukan
+        Connection kon = null;
+        PreparedStatement pstGetBarangDetails = null;
+        ResultSet resBarangDetails = null;
+        PreparedStatement pst = null;
+
         try {
+            // Ambil data dari field
+            String selectedBarangName = (String) combox_barang.getSelectedItem();
+            String quantityText = txt_kuantitas.getText();
+            String nominalText = txt_nominal.getText();
+
+            // --- Validasi Input Awal ---
+            if (selectedBarangName == null || selectedBarangName.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Barang belum dipilih.", "Peringatan", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            if (quantityText.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Kuantitas belum diisi.", "Peringatan", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            if (nominalText.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Nominal harga belum diisi.", "Peringatan", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            int quantity = 0;
+            try {
+                quantity = Integer.parseInt(quantityText.trim()); // Trim untuk hapus spasi
+                if (quantity <= 0) {
+                    JOptionPane.showMessageDialog(null, "Kuantitas harus angka positif.", "Peringatan", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Kuantitas harus berupa angka valid.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            int hargaSatuan = 0;
+            try {
+                hargaSatuan = parseRupiah(nominalText); // Gunakan parseRupiah untuk nominal
+                if (hargaSatuan <= 0) {
+                    JOptionPane.showMessageDialog(null, "Nominal harga harus lebih besar dari 0.", "Peringatan", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+            } catch (java.text.ParseException e) {
+                JOptionPane.showMessageDialog(null, "Format nominal (harga) tidak valid. Pastikan formatnya benar (misal: Rp10.000).", "Input Error", JOptionPane.ERROR_MESSAGE);
+                System.err.println("Parse error for nominal in addDetailTransaksi: " + e.getMessage());
+                return;
+            }
+            // --- Akhir Validasi Input Awal ---
+
             // Generate UUID
             String idDetailTransaksi = UUID.randomUUID().toString();
 
-            // Ngambil data dari field
-            String selectedBarangName = (String) combox_barang.getSelectedItem();
-            int quantity = Integer.parseInt(txt_kuantitas.getText());
-
-            // Remove formatting from txt_nominal before parsing
-            int hargaSatuan = Integer.parseInt(txt_nominal.getText().replace(".", "").replace(",", ""));
-
             Class.forName(driver);
-            Connection kon = DriverManager.getConnection(database, user, pass);
+            kon = DriverManager.getConnection(database, user, pass);
 
             // 4. Get kode_barang and kode_supplier from selectedBarangName and current kodeSup
             String kodeBarang = "";
-            String kodeSupplierFromBarang = "";
+            String kodeSupplierFromBarang = ""; // Ini mungkin tidak terlalu penting jika kodeSup sudah valid
             String sqlGetBarangDetails = "SELECT kode_barang, kode_supplier FROM t_barang WHERE nama_barang = ? AND kode_supplier = ?";
-            PreparedStatement pstGetBarangDetails = kon.prepareStatement(sqlGetBarangDetails);
+            pstGetBarangDetails = kon.prepareStatement(sqlGetBarangDetails);
             pstGetBarangDetails.setString(1, selectedBarangName);
-            // *** CHANGE THIS LINE ***
-            pstGetBarangDetails.setString(2, kodeSup); // Use kodeSup here, which is the supplier's code
-            ResultSet resBarangDetails = pstGetBarangDetails.executeQuery();
+            pstGetBarangDetails.setString(2, kodeSup); // Gunakan kodeSup yang sudah di-set dari combox_supplierActionPerformed
+            resBarangDetails = pstGetBarangDetails.executeQuery();
             if (resBarangDetails.next()) {
                 kodeBarang = resBarangDetails.getString("kode_barang");
                 kodeSupplierFromBarang = resBarangDetails.getString("kode_supplier");
             } else {
-                JOptionPane.showMessageDialog(null, "Barang tidak ditemukan untuk supplier ini.", "Error", JOptionPane.ERROR_MESSAGE);
-                resBarangDetails.close();
-                pstGetBarangDetails.close();
-                kon.close();
-                return;
+                JOptionPane.showMessageDialog(null, "Barang tidak ditemukan untuk supplier ini. Mungkin data tidak sinkron.", "Error", JOptionPane.ERROR_MESSAGE);
+                return; // Penting untuk return di sini jika data tidak valid
             }
-            resBarangDetails.close();
-            pstGetBarangDetails.close();
 
             // 5. Calculate subtotal
             int subtotal = quantity * hargaSatuan;
 
             // 6. Insert data into t_detail_transaksi
             String SQL = "INSERT INTO t_detail_transaksi (id_detail_transaksi, id_transaksi, kode_barang, kode_supplier, quantity, harga_satuan, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?)";
-            PreparedStatement pst = kon.prepareStatement(SQL);
+            pst = kon.prepareStatement(SQL);
             pst.setString(1, idDetailTransaksi);
             pst.setString(2, selectedIdTransaksi);
             pst.setString(3, kodeBarang);
-            pst.setString(4, kodeSupplierFromBarang); // Use the kode_supplier retrieved from t_barang
+            pst.setString(4, kodeSupplierFromBarang);
             pst.setInt(5, quantity);
             pst.setInt(6, hargaSatuan);
             pst.setInt(7, subtotal);
 
+            // Update total_transaksi di tabel utama
             updateTotal(selectedIdTransaksi, subtotal);
 
             int rowsAffected = pst.executeUpdate();
             if (rowsAffected > 0) {
                 JOptionPane.showMessageDialog(null, "Detail transaksi berhasil ditambahkan.", "Informasi", JOptionPane.INFORMATION_MESSAGE);
                 settableload(); // Refresh the main table
-                // membersihkan_teks(); // If you have a method to clear input fields
+                // membersihkan_teks(); // Panggil ini jika ingin mengosongkan field setelah tambah
             } else {
                 JOptionPane.showMessageDialog(null, "Gagal menambahkan detail transaksi.", "Error", JOptionPane.ERROR_MESSAGE);
             }
 
-            pst.close();
-            kon.close();
-
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null, "Kuantitas atau Nominal harus berupa angka yang valid.", "Input Error", JOptionPane.ERROR_MESSAGE);
-            System.err.println(e.getMessage());
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null,
-                    "Terjadi kesalahan saat menambahkan detail transaksi: " + e.getMessage(), "Error",
-                    JOptionPane.ERROR_MESSAGE);
-            System.err.println(e.getMessage());
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error database saat menambahkan detail transaksi: " + ex.getMessage(), "Error DB", JOptionPane.ERROR_MESSAGE);
+            System.err.println("SQL Error in addDetailTransaksi: " + ex.getMessage());
+        } catch (ClassNotFoundException ex) {
+            JOptionPane.showMessageDialog(null, "Driver database tidak ditemukan.", "Error Driver", JOptionPane.ERROR_MESSAGE);
+            System.err.println("Class Not Found Error in addDetailTransaksi: " + ex.getMessage());
+        } catch (Exception e) { // Catch semua exception yang tidak terduga
+            JOptionPane.showMessageDialog(null, "Terjadi kesalahan tak terduga saat menambahkan detail transaksi: " + e.getMessage(), "Error Umum", JOptionPane.ERROR_MESSAGE);
+            System.err.println("General Error in addDetailTransaksi: " + e.getMessage());
+        } finally {
+            // Pastikan semua resources ditutup
+            try {
+                if (resBarangDetails != null) resBarangDetails.close();
+                if (pstGetBarangDetails != null) pstGetBarangDetails.close();
+                if (pst != null) pst.close();
+                if (kon != null) kon.close();
+            } catch (SQLException closeEx) {
+                System.err.println("Error closing resources in addDetailTransaksi: " + closeEx.getMessage());
+            }
         }
     }
     
