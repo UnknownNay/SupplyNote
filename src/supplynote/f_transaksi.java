@@ -9,8 +9,10 @@ package supplynote;
 import javax.swing.*;
 
 import java.sql.*;
+import java.text.NumberFormat;
 import java.util.UUID;
 import java.time.LocalDate;
+import java.util.Locale;
 /**
  *
  * @author aido
@@ -36,7 +38,8 @@ public class f_transaksi extends javax.swing.JFrame {
         
         tabel_transaksi.setModel(tableModel);
         
-        
+        txt_keterangan.setLineWrap(true); 
+        txt_keterangan.setWrapStyleWord(true);
 //        Hide column 1
         tabel_transaksi.getColumnModel().getColumn(0).setMinWidth(0);
         tabel_transaksi.getColumnModel().getColumn(0).setMaxWidth(0);
@@ -57,15 +60,39 @@ public class f_transaksi extends javax.swing.JFrame {
             }
         };
     }
+    private String formatRupiah(int amount) {
+        // Use Locale.forLanguageTag("id-ID") for Indonesian currency formatting
+        // Or Locale.GERMANY if you just want dot as thousands separator and no Rp prefix
+        NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("in", "ID"));
+        return formatter.format(amount);
+    }
+
+    // You might also need a method to parse formatted currency back to an int
+    private int parseRupiah(String formattedAmount) throws java.text.ParseException {
+        NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("in", "ID"));
+        Number number = formatter.parse(formattedAmount);
+        return number.intValue();
+    }
+    
     
     int row = 0;
     private void tampil_field(){
         row = tabel_transaksi.getSelectedRow();
-        
-        txt_transaksi.setText(String.valueOf(tableModel.getValueAt(row, 3)));
-        txt_keterangan.setText(String.valueOf(tableModel.getValueAt(row, 5)));
-        String status = String.valueOf(tableModel.getValueAt(row, 5));
+
+        txt_transaksi.setText(String.valueOf(tableModel.getValueAt(row, 1)));
+        txt_keterangan.setText(String.valueOf(tableModel.getValueAt(row, 3)));
+        String status = String.valueOf(tableModel.getValueAt(row, 4));
         combox_status.setSelectedItem(status);
+
+        String dateString = String.valueOf(tableModel.getValueAt(row, 2));
+        try {
+            LocalDate date = LocalDate.parse(dateString);
+            datepicker.setDate(date);
+        } catch (Exception e) {
+            System.err.println("Error parsing date from table: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Error loading date: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            datepicker.setDate(null);
+        }
     }
     
     public void membersihkan_teks(){
@@ -122,7 +149,9 @@ public class f_transaksi extends javax.swing.JFrame {
                 data[2] = res.getString(3);
                 data[3] = res.getString(4);
                 data[4] = res.getString(5);
-                data[5] = res.getString(6);
+                int totalTransaksiInt = res.getInt(6); 
+                data[5] = formatRupiah(totalTransaksiInt);
+            
                 tableModel.addRow(data);
                 
             }
@@ -155,7 +184,6 @@ public class f_transaksi extends javax.swing.JFrame {
         btn_barang = new javax.swing.JButton();
         btn_transaksi = new javax.swing.JButton();
         btn_supplier = new javax.swing.JButton();
-        btn_detailTrans = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         btn_ubah = new javax.swing.JButton();
@@ -171,6 +199,7 @@ public class f_transaksi extends javax.swing.JFrame {
         txt_keterangan = new javax.swing.JTextArea();
         combox_status = new javax.swing.JComboBox<>();
         datepicker = new com.github.lgooddatepicker.components.DatePicker();
+        btn_detail = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -203,17 +232,6 @@ public class f_transaksi extends javax.swing.JFrame {
             }
         });
 
-        btn_detailTrans.setBackground(new java.awt.Color(51, 51, 51));
-        btn_detailTrans.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        btn_detailTrans.setForeground(new java.awt.Color(255, 255, 255));
-        btn_detailTrans.setText("Detail Transaksi");
-        btn_detailTrans.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        btn_detailTrans.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn_detailTransActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -222,8 +240,7 @@ public class f_transaksi extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btn_barang, javax.swing.GroupLayout.DEFAULT_SIZE, 183, Short.MAX_VALUE)
-                    .addComponent(btn_transaksi, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 183, Short.MAX_VALUE)
-                    .addComponent(btn_detailTrans, javax.swing.GroupLayout.DEFAULT_SIZE, 183, Short.MAX_VALUE))
+                    .addComponent(btn_transaksi, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 183, Short.MAX_VALUE))
                 .addContainerGap())
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel1Layout.createSequentialGroup()
@@ -238,8 +255,6 @@ public class f_transaksi extends javax.swing.JFrame {
                 .addComponent(btn_barang, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btn_transaksi, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btn_detailTrans, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel1Layout.createSequentialGroup()
@@ -249,10 +264,10 @@ public class f_transaksi extends javax.swing.JFrame {
         );
 
         jLabel1.setText("Transaksi");
-        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 48)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 48)); // NOI18N
 
         jLabel2.setText("Tanggal");
-        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
 
         btn_ubah.setText("Ubah");
         btn_ubah.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -317,6 +332,14 @@ public class f_transaksi extends javax.swing.JFrame {
 
         datepicker.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
+        btn_detail.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        btn_detail.setText("Lihat Detail");
+        btn_detail.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_detailActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -347,15 +370,18 @@ public class f_transaksi extends javax.swing.JFrame {
                                 .addGap(66, 66, 66)
                                 .addComponent(jLabel6)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 424, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1225, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btn_hapus, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btn_ubah, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btn_tambah, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(btn_hapus, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btn_ubah, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btn_tambah, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(btn_detail, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(17, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -365,33 +391,38 @@ public class f_transaksi extends javax.swing.JFrame {
                 .addGap(36, 36, 36)
                 .addComponent(jLabel1)
                 .addGap(29, 29, 29)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel2)
-                            .addComponent(datepicker, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jLabel2)
+                                    .addComponent(datepicker, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(txt_transaksi, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel3)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel6)
+                                .addGap(89, 89, 89)))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(txt_transaksi, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel3)))
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLabel6)))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(combox_status, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel4))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 24, Short.MAX_VALUE)
+                            .addComponent(combox_status, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel4)))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 31, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(btn_hapus, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btn_tambah, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btn_ubah, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 342, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(60, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btn_detail, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(13, Short.MAX_VALUE))
         );
 
-        setSize(new java.awt.Dimension(1478, 806));
+        setSize(new java.awt.Dimension(1478, 823));
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
@@ -467,17 +498,18 @@ public class f_transaksi extends javax.swing.JFrame {
 
     private void btn_ubahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_ubahActionPerformed
         // TODO add your handling code here:
+//        row = tabel_transaksi.getSelectedRow();
         String namaTrans = txt_transaksi.getText();
         String Ket = txt_keterangan.getText();
         String status = (String) combox_status.getSelectedItem();
+        String idTransaksi = String.valueOf(tableModel.getValueAt(row, 0));
 
+        
         
         //Ambil tanggal
         LocalDate selectedDate = datepicker.getDate();
         java.sql.Date sqlDate = java.sql.Date.valueOf(selectedDate);
         
-        // Ambil id_transaksi dari tabel
-        int selectedRow = tabel_transaksi.getSelectedRow();
         
         // Validasi: Nama Transaksi tidak boleh kosong
         if (namaTrans.isEmpty()) {
@@ -499,24 +531,21 @@ public class f_transaksi extends javax.swing.JFrame {
                     "Peringatan", JOptionPane.WARNING_MESSAGE);
             return;
         }
-    
-        String idTrans = tableModel.getValueAt(selectedRow, 0).toString();
-       
-        
+            
         // Update ke database
         try {
             Class.forName(driver);
             Connection kon = DriverManager.getConnection(database, user, pass);
 
             String sql = "UPDATE t_transaksi SET nama_transaksi=?, tanggal_transaksi=?, "
-                    + "keterangan=?, status=?, total_transaksi=? WHERE id_transaksi=?";
+                    + "keterangan=?, status=? WHERE id_transaksi=?";
             PreparedStatement pst = kon.prepareStatement(sql);
 
             pst.setString(1, namaTrans); 
             pst.setDate(2, sqlDate);
             pst.setString(3, Ket);
             pst.setString(4, status);
-            pst.setString(5, idTrans);
+            pst.setString(5, idTransaksi);
 
             int rowUpdated = pst.executeUpdate();
             if (rowUpdated > 0) {
@@ -542,32 +571,82 @@ public class f_transaksi extends javax.swing.JFrame {
     }//GEN-LAST:event_tabel_transaksiMouseClicked
 
     private void btn_hapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_hapusActionPerformed
-        // TODO add your handling code here:
         int selectedRow = tabel_transaksi.getSelectedRow();
-        String idTrans = tableModel.getValueAt(selectedRow, 0).toString();
-        
-        try{
-            Class.forName(driver);
-            Connection kon = DriverManager.getConnection(database, user, pass);
+        if (selectedRow == -1) {
+            // Show a warning if no row is selected
+            JOptionPane.showMessageDialog(null, "Pilih baris transaksi yang ingin dihapus.", "Peringatan", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
-            String sql = "DELETE FROM t_transaksi WHERE id_transaksi= ?";
-            PreparedStatement pst = kon.prepareStatement(sql);
-            pst.setString(1, idTrans);
-             
-            pst.executeUpdate();
-            if(!idTrans.isEmpty()){
-                settableload();
-                
+        String idTransaksi = tableModel.getValueAt(selectedRow, 0).toString();
+
+        // Ask for confirmation before deleting
+        int confirm = JOptionPane.showConfirmDialog(null,
+                            "Apakah Anda yakin ingin menghapus transaksi ini dan semua detail terkaitnya?",
+                            "Konfirmasi Hapus Transaksi", JOptionPane.YES_NO_OPTION);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            Connection kon = null; // Initialize connection to null for finally block
+            PreparedStatement pstDetails = null; // Initialize prepared statements to null
+            PreparedStatement pstTransaction = null;
+
+            try {
+                Class.forName(driver);
+                kon = DriverManager.getConnection(database, user, pass);
+                kon.setAutoCommit(false); // Start transaction: important for multi-step operations
+
+                // 1. Delete all related records from the child table (t_detail_transaksi)
+                String sqlDeleteDetails = "DELETE FROM t_detail_transaksi WHERE id_transaksi = ?";
+                pstDetails = kon.prepareStatement(sqlDeleteDetails);
+                pstDetails.setString(1, idTransaksi);
+                int detailsDeleted = pstDetails.executeUpdate();
+                System.out.println(detailsDeleted + " detail transaksi dihapus."); // For debugging
+
+                // 2. Now, delete the parent record from the t_transaksi table
+                String sqlDeleteTransaction = "DELETE FROM t_transaksi WHERE id_transaksi = ?";
+                pstTransaction = kon.prepareStatement(sqlDeleteTransaction);
+                pstTransaction.setString(1, idTransaksi);
+                int transactionDeleted = pstTransaction.executeUpdate();
+                System.out.println(transactionDeleted + " transaksi dihapus."); // For debugging
+
+                kon.commit(); // Commit the transaction if both deletions are successful
+                JOptionPane.showMessageDialog(null, "Data transaksi dan detail terkait berhasil dihapus.");
+                settableload(); // Reload the table to reflect changes
+                membersihkan_teks(); // Clear the text fields
+
+            } catch (SQLException ex) {
+                // If any error occurs, rollback the transaction
+                try {
+                    if (kon != null) {
+                        kon.rollback();
+                    }
+                } catch (SQLException rollbackEx) {
+                    System.err.println("Error during rollback: " + rollbackEx.getMessage());
+                }
+                JOptionPane.showMessageDialog(null,
+                        "Gagal menghapus data: " + ex.getMessage() + "\nOperasi dibatalkan.",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                System.err.println("SQL Error: " + ex.getMessage());
+            } catch (ClassNotFoundException ex) {
+                JOptionPane.showMessageDialog(null,
+                        "Driver database tidak ditemukan: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                System.err.println("Class Not Found Error: " + ex.getMessage());
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null,
+                        "Terjadi kesalahan tak terduga: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                System.err.println("General Error: " + ex.getMessage());
+            } finally {
+                // Close resources in a finally block to ensure they are always closed
+                try {
+                    if (pstDetails != null) pstDetails.close();
+                    if (pstTransaction != null) pstTransaction.close();
+                    if (kon != null) kon.close();
+                } catch (SQLException closeEx) {
+                    System.err.println("Error closing resources: " + closeEx.getMessage());
+                }
             }
-            
-            pst.close();
-            kon.close();
-            
-        }catch(Exception ex){
-            JOptionPane.showMessageDialog(null, 
-                    "Gagal mengubah data: " + ex.getMessage(), 
-                    "Error", JOptionPane.ERROR_MESSAGE);
-            System.err.println(ex.getMessage());
         }
     }//GEN-LAST:event_btn_hapusActionPerformed
 
@@ -579,14 +658,6 @@ public class f_transaksi extends javax.swing.JFrame {
         this.setVisible(false);
     }//GEN-LAST:event_btn_supplierActionPerformed
 
-    private void btn_detailTransActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_detailTransActionPerformed
-        // TODO add your handling code here:
-        f_detailTransaksi detail = new f_detailTransaksi();
-        detail.setVisible(true);
-        
-        this.setVisible(false);
-    }//GEN-LAST:event_btn_detailTransActionPerformed
-
     private void btn_barangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_barangActionPerformed
         // TODO add your handling code here:
         f_barang barang = new f_barang();
@@ -594,6 +665,24 @@ public class f_transaksi extends javax.swing.JFrame {
         
         this.setVisible(false);
     }//GEN-LAST:event_btn_barangActionPerformed
+
+    private void btn_detailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_detailActionPerformed
+        // TODO add your handling code here:
+        int selectedRow = tabel_transaksi.getSelectedRow();
+        if (selectedRow != -1) {
+            // Ambil ID Transaksi dari kolom pertama (index 0) yang tersembunyi
+            String idTransaksi = String.valueOf(tableModel.getValueAt(selectedRow, 0));
+
+            // Buka f_detailTransaksi dan kirim ID Transaksi
+            f_detailTransaksi detail = new f_detailTransaksi(idTransaksi );
+            detail.setVisible(true);
+            
+            this.setVisible(false);
+
+        } else {
+            JOptionPane.showMessageDialog(this, "Pilih baris transaksi terlebih dahulu untuk melihat detail.", "Peringatan", JOptionPane.WARNING_MESSAGE);
+        }
+    }//GEN-LAST:event_btn_detailActionPerformed
 
     /**
      * @param args the command line arguments
@@ -663,7 +752,7 @@ public class f_transaksi extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btn_barang;
-    private javax.swing.JButton btn_detailTrans;
+    private javax.swing.JButton btn_detail;
     private javax.swing.JButton btn_hapus;
     private javax.swing.JButton btn_supplier;
     private javax.swing.JButton btn_tambah;

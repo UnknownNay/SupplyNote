@@ -35,7 +35,7 @@ public class f_supplier extends javax.swing.JFrame {
         tabel_supplier.setModel(tableModel);
         settableload();
         
-//        Hide Column 1
+//        Hide Column 1jadi
         tabel_supplier.getColumnModel().getColumn(0).setMinWidth(0);
         tabel_supplier.getColumnModel().getColumn(0).setMaxWidth(0);
     }
@@ -74,7 +74,7 @@ public class f_supplier extends javax.swing.JFrame {
         txt_negara.setText("");
     }
     
-    String data []=new String[5];
+    String data []=new String[6];
     private void settableload(){
         try{
             Class.forName(driver);
@@ -91,6 +91,7 @@ public class f_supplier extends javax.swing.JFrame {
                 data[2] = res.getString(3);
                 data[3] = res.getString(4);
                 data[4] = res.getString(5);
+                data[5] = res.getString(6);
                 tableModel.addRow(data);
                 
             }
@@ -123,7 +124,6 @@ public class f_supplier extends javax.swing.JFrame {
         btn_barang = new javax.swing.JButton();
         btn_transaksi = new javax.swing.JButton();
         btn_supplier = new javax.swing.JButton();
-        btn_detailTrans = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         btn_ubah = new javax.swing.JButton();
@@ -145,43 +145,32 @@ public class f_supplier extends javax.swing.JFrame {
 
         jPanel1.setBackground(new java.awt.Color(120, 120, 120));
 
-        btn_barang.setText("Barang");
         btn_barang.setBackground(new java.awt.Color(51, 51, 51));
-        btn_barang.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         btn_barang.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btn_barang.setForeground(new java.awt.Color(255, 255, 255));
+        btn_barang.setText("Barang");
         btn_barang.setToolTipText("");
+        btn_barang.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         btn_barang.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_barangActionPerformed(evt);
             }
         });
 
-        btn_transaksi.setText("Transaksi");
         btn_transaksi.setBackground(new java.awt.Color(51, 51, 51));
-        btn_transaksi.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         btn_transaksi.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btn_transaksi.setForeground(new java.awt.Color(255, 255, 255));
+        btn_transaksi.setText("Transaksi");
+        btn_transaksi.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         btn_transaksi.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_transaksiActionPerformed(evt);
             }
         });
 
+        btn_supplier.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btn_supplier.setText("Supplier");
         btn_supplier.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        btn_supplier.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-
-        btn_detailTrans.setText("Detail Transaksi");
-        btn_detailTrans.setBackground(new java.awt.Color(51, 51, 51));
-        btn_detailTrans.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        btn_detailTrans.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        btn_detailTrans.setForeground(new java.awt.Color(255, 255, 255));
-        btn_detailTrans.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn_detailTransActionPerformed(evt);
-            }
-        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -191,8 +180,7 @@ public class f_supplier extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btn_barang, javax.swing.GroupLayout.DEFAULT_SIZE, 183, Short.MAX_VALUE)
-                    .addComponent(btn_transaksi, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 183, Short.MAX_VALUE)
-                    .addComponent(btn_detailTrans, javax.swing.GroupLayout.DEFAULT_SIZE, 183, Short.MAX_VALUE))
+                    .addComponent(btn_transaksi, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 183, Short.MAX_VALUE))
                 .addContainerGap())
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel1Layout.createSequentialGroup()
@@ -207,8 +195,6 @@ public class f_supplier extends javax.swing.JFrame {
                 .addComponent(btn_barang, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(12, 12, 12)
                 .addComponent(btn_transaksi, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btn_detailTrans, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel1Layout.createSequentialGroup()
@@ -217,14 +203,14 @@ public class f_supplier extends javax.swing.JFrame {
                     .addContainerGap(637, Short.MAX_VALUE)))
         );
 
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 48)); // NOI18N
         jLabel1.setText("Pencatatan Supplier");
-        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 48)); // NOI18N
 
-        jLabel2.setText("Negara");
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel2.setText("Negara");
 
-        btn_ubah.setText("Ubah");
         btn_ubah.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        btn_ubah.setText("Ubah");
         btn_ubah.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_ubahActionPerformed(evt);
@@ -250,29 +236,29 @@ public class f_supplier extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(tabel_supplier);
 
-        btn_tambah.setText("Tambah");
         btn_tambah.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        btn_tambah.setText("Tambah");
         btn_tambah.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_tambahActionPerformed(evt);
             }
         });
 
-        jLabel3.setText("Nama Supplier");
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel3.setText("Nama Supplier");
 
-        jLabel4.setText("No. Telp");
         jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel4.setText("No. Telp");
 
         txt_noTelp.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
-        jLabel5.setText("Email");
         jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel5.setText("Email");
 
         txt_email.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
-        jLabel6.setText("Lokasi");
         jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel6.setText("Lokasi");
 
         txt_lokasi.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         txt_lokasi.addActionListener(new java.awt.event.ActionListener() {
@@ -281,8 +267,8 @@ public class f_supplier extends javax.swing.JFrame {
             }
         });
 
-        btn_hapus.setText("Hapus");
         btn_hapus.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        btn_hapus.setText("Hapus");
         btn_hapus.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_hapusActionPerformed(evt);
@@ -365,10 +351,10 @@ public class f_supplier extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(txt_email, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel5))
-                        .addGap(0, 66, Short.MAX_VALUE)))
+                        .addGap(0, 63, Short.MAX_VALUE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 342, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(54, Short.MAX_VALUE))
+                .addContainerGap(51, Short.MAX_VALUE))
         );
 
         setSize(new java.awt.Dimension(1478, 806));
@@ -509,16 +495,16 @@ public class f_supplier extends javax.swing.JFrame {
             Class.forName(driver);
             Connection kon = DriverManager.getConnection(database, user, pass);
 
-            String sql = "UPDATE t_supplier SET kode_supplier=?, nama_supplier=?, "
+            String sql = "UPDATE t_supplier SET nama_supplier=?, "
                     + "no_telepon=?, email=?, lokasi=?, negara=? WHERE kode_supplier=?";
             PreparedStatement pst = kon.prepareStatement(sql);
 
-            pst.setString(1, kodeSup);
-            pst.setString(2, namaSup); 
-            pst.setString(3, noTelp);
-            pst.setString(4, email);
-            pst.setString(5, lokasi);
-            pst.setString(6, negara);
+            pst.setString(1, namaSup); 
+            pst.setString(2, noTelp);
+            pst.setString(3, email);
+            pst.setString(4, lokasi);
+            pst.setString(5, negara);
+            pst.setString(6, kodeSup);
 
             int rowUpdated = pst.executeUpdate();
             if (rowUpdated > 0) {
@@ -547,29 +533,73 @@ public class f_supplier extends javax.swing.JFrame {
     private void btn_hapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_hapusActionPerformed
         // TODO add your handling code here:
         int selectedRow = tabel_supplier.getSelectedRow();
-        String kodeSup = tableModel.getValueAt(selectedRow, 1).toString();
-        
-        try{
-            Class.forName(driver);
-            Connection kon = DriverManager.getConnection(database, user, pass);
 
-            String sql = "DELETE FROM t_supplier WHERE kode_supplier= ?";
-            PreparedStatement pst = kon.prepareStatement(sql);
-            pst.setString(1, kodeSup);
-             
-            pst.executeUpdate();
-            if(!kodeSup.isEmpty()){
-                settableload();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(null, "Pilih supplier yang ingin dihapus dari tabel.", "Peringatan", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String kodeSup = tableModel.getValueAt(selectedRow, 0).toString(); // Get Kode Supplier (Column 0)
+        String namaSup = tableModel.getValueAt(selectedRow, 1).toString(); // Get Nama Supplier for confirmation
+
+        int confirm = JOptionPane.showConfirmDialog(null, 
+                "Apakah Anda yakin ingin menghapus supplier '" + namaSup + "'? " +
+                "Ini juga akan menghapus semua barang yang terkait dengan supplier ini.", 
+                "Konfirmasi Hapus Supplier", JOptionPane.YES_NO_OPTION);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            Connection kon = null; // Declare Connection outside try for finally block
+            try {
+                Class.forName(driver);
+                kon = DriverManager.getConnection(database, user, pass);
+                kon.setAutoCommit(false); // Start transaction
+
+                // 1. Delete dependent records from t_barang
+                String sqlDeleteBarang = "DELETE FROM t_barang WHERE kode_supplier = ?";
+                PreparedStatement pstBarang = kon.prepareStatement(sqlDeleteBarang);
+                pstBarang.setString(1, kodeSup);
+                pstBarang.executeUpdate(); // Execute deletion for associated items
+                pstBarang.close();
+
+                // 2. Delete the supplier from t_supplier
+                String sqlDeleteSupplier = "DELETE FROM t_supplier WHERE kode_supplier = ?";
+                PreparedStatement pstSupplier = kon.prepareStatement(sqlDeleteSupplier);
+                pstSupplier.setString(1, kodeSup);
+
+                int rowsAffected = pstSupplier.executeUpdate();
+                if (rowsAffected > 0) {
+                    kon.commit(); // Commit transaction if both deletions are successful
+                    JOptionPane.showMessageDialog(null, "Data supplier dan barang terkait berhasil dihapus.");
+                    settableload(); // Reload the table after successful deletion
+                    membersihkan_teks(); // Clear the text fields
+                } else {
+                    kon.rollback(); // Rollback if supplier deletion fails
+                    JOptionPane.showMessageDialog(null, "Gagal menghapus data supplier.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+
+                pstSupplier.close();
+
+            } catch (Exception ex) {
+                try {
+                    if (kon != null) {
+                        kon.rollback(); // Rollback in case of any exception
+                    }
+                } catch (SQLException rollbackEx) {
+                    System.err.println("Error during rollback: " + rollbackEx.getMessage());
+                }
+                JOptionPane.showMessageDialog(null, 
+                        "Gagal menghapus data: " + ex.getMessage(), 
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                System.err.println(ex.getMessage());
+            } finally {
+                try {
+                    if (kon != null) {
+                        kon.close(); // Ensure connection is closed
+                    }
+                } catch (SQLException closeEx) {
+                    System.err.println("Error closing connection: " + closeEx.getMessage());
+                }
             }
-            
-            pst.close();
-            kon.close();
-            
-        }catch(Exception ex){
-            JOptionPane.showMessageDialog(null, 
-                    "Gagal mengubah data: " + ex.getMessage(), 
-                    "Error", JOptionPane.ERROR_MESSAGE);
-            System.err.println(ex.getMessage());
         }
     }//GEN-LAST:event_btn_hapusActionPerformed
 
@@ -592,14 +622,6 @@ public class f_supplier extends javax.swing.JFrame {
         
         this.setVisible(false);
     }//GEN-LAST:event_btn_transaksiActionPerformed
-
-    private void btn_detailTransActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_detailTransActionPerformed
-        // TODO add your handling code here:
-        f_detailTransaksi dettransaksi = new f_detailTransaksi();
-        dettransaksi.setVisible(true);
-        
-        this.setVisible(false);
-    }//GEN-LAST:event_btn_detailTransActionPerformed
 
     /**
      * @param args the command line arguments
@@ -653,7 +675,6 @@ public class f_supplier extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btn_barang;
-    private javax.swing.JButton btn_detailTrans;
     private javax.swing.JButton btn_hapus;
     private javax.swing.JButton btn_supplier;
     private javax.swing.JButton btn_tambah;

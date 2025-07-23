@@ -25,7 +25,7 @@ public class koneksi {
         try{
             mypanel = new Properties();
             mypanel.load(new FileInputStream
-                            ("lib/database-hosting.ini"));
+                            ("lib/database-hosting-aiven.ini"));
             strNamePanel = mypanel.getProperty(nmPanel);
         }catch(Exception e){
             JOptionPane.showMessageDialog(null,
